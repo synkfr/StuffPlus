@@ -170,6 +170,14 @@ build/libs/Stuff-1.0.0.jar
 
 ---
 
+## bStats Metrics
+
+Stuff+ integrates with [bStats](https://bstats.org/) to collect anonymous usage statistics. This helps us understand how the plugin is being used and guides future development.
+
+If you wish to opt-out of anonymous metrics collection, you can disable it by navigating to your server's `plugins/bStats/config.yml` file and setting `enabled: false`.
+
+---
+
 ## Developer Notes
 
 For developers looking at the source code of Stuff+, here is a summary of region-threading safety rules integrated into this repository:
