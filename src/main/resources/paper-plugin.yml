@@ -1,0 +1,33 @@
+name: Stuff
+version: 1.0.0
+main: me.ayosynk.stuff.StuffPlugin
+api-version: '1.20'
+folia-supported: true
+description: Advanced modern moderation and utility plugin with Folia support.
+authors: [me.ayosynk, Antigravity]
+
+permissions:
+  stuff.admin:
+    description: Gives all stuff permissions.
+    default: op
+    children:
+      stuff.mute: true
+      stuff.tempmute: true
+      stuff.ban: true
+      stuff.tempban: true
+      stuff.ipban: true
+      stuff.tempipban: true
+      stuff.unmute: true
+      stuff.unban: true
+      stuff.unipban: true
+      stuff.warn: true
+      stuff.warns: true
+      stuff.invsee: true
+      stuff.vanish: true
+      stuff.vanish.see: true
+      stuff.monitor: true
+      stuff.fly: true
+      stuff.gmc: true
+      stuff.gms: true
+      stuff.gmsp: true
+      stuff.gma: true
