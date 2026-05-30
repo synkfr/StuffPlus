@@ -42,5 +42,5 @@ build/libs/Stuff-1.0.0.jar
 ```
 
 ::: info Relocated Dependencies
-The build pipeline automatically shades and relocates core packages like **Okaeri Configs**, **HikariCP**, and **bStats** under private namespaces (`me.ayosynk.stuff.libs.*`) to guarantee zero classpath conflicts with any other plugins running on your server.
+The build system automatically relocates and packages all required libraries inside the final JAR file, ensuring it runs out of the box with zero conflicts against any other plugins on your server.
 :::

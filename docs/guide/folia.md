@@ -1,68 +1,38 @@
-# Folia Compatibility & Best Practices
+# Folia Support & Lag Safety
 
-`Stuff+` is engineered specifically to exploit the benefits of **Folia's multi-threaded region architecture** while maintaining strict safety boundaries to prevent thread clashes or data corruption.
+`Stuff+` is designed from the ground up to run perfectly on **Folia** multi-threaded servers as well as standard **Paper** and **Spigot** servers. 
 
-For server administrators and developers looking to understand or extend the codebase, here is a detailed breakdown of the safety patterns integrated into this repository:
+If you are running a large server network, you might know that Folia runs different regions of your world on separate threads to prevent lag. This makes standard admin tools crash or lag, but `Stuff+` keeps your gameplay completely safe and fast.
 
----
-
-## The Core Challenge: Region Threading
-
-Traditional Spigot/Paper plugins assume a single-threaded server where all entity ticks, world events, and inventory queries execute sequentially on the main server thread. 
-
-**Folia completely shifts this paradigm** by ticking different parts of the world (regions) on separate threads. Attempting to query cross-region data or execute traditional synchronous Spigot calls from arbitrary threads will immediately throw an `IllegalStateException` or crash the ticking region.
-
-`Stuff+` solves this using four distinct architectural pillars:
+Here is how we do it in simple terms:
 
 ---
 
-## Pillar 1: Asynchronous Teleportation
+## 1. Asynchronous Teleports (No Server Jumps)
+In standard plugins, teleporting a player stops the server for a split second to load chunks. On Folia, this causes crashes. 
 
-Synchronous `Entity#teleport(Location)` is completely disabled under Folia. Attempting to call it synchronously on ticking threads throws an `UnsupportedOperationException`.
-
-`Stuff+` implements non-blocking asynchronous teleportation futures:
-```java
-// Safe asynchronous teleportation
-staff.teleportAsync(location).thenAccept(success -> {
-    if (success) {
-        // Run dependent actions safely after teleportation resolves
-    }
-});
-```
+`Stuff+` uses safe, modern **Asynchronous Teleporting**. The server loads the chunks in the background and moves the player only when the destination is completely ready, keeping your TPS stable at a constant 20.0.
 
 ---
 
-## Pillar 2: Recipient-Confined Packet Delivery
+## 2. Smart Invisibility (Vanish packet delivery)
+When you vanish, your character is hidden from other players by sending packets. On Folia, if these packets are sent incorrectly, other players will still see you or your server will throw errors. 
 
-Visibility states (such as `/vanish` packet updates hiding or showing a player) must be scheduled directly on each recipient player's regional thread. Running this logic synchronously from the vanished player's thread will fail silently or throw cross-region threading exceptions.
-
-`Stuff+` handles this by scheduling individual packet updates on each online player's specific regional scheduler:
-```java
-// Schedule hidePlayer on recipient's regional thread context
-SchedulerUtils.runEntity(plugin, recipient, () -> {
-    recipient.hidePlayer(plugin, vanishedPlayer);
-});
-```
+`Stuff+` safely queues and schedules visibility updates on each individual player's tick scheduler, making sure you are **100% invisible** every time you toggle `/vanish`.
 
 ---
 
-## Pillar 3: Thread-Safe Session Registry
+## 3. Real-time Inventory Inspector (/invsee)
+Inspecting player inventories on Folia usually crashes the server if the players are located in different regions or worlds, as the plugin tries to read block containers (like chests) from the wrong thread.
 
-Under Folia, calling `.getOpenInventory().getTopInventory().getHolder()` on block-based inventories (e.g. Furnaces or Chests) open by staff in other regions triggers synchronous world reads. If the block is in another region, it fails the region thread check and crashes.
-
-`Stuff+` completely avoids cross-thread inventory/block-state reads by introducing a **Thread-Safe Session Registry** (`ConcurrentHashMap`):
-* **Registration**: When a staff member runs `/invsee`, the plugin registers an `InvseeSession` mapping `staffUuid -> InvseeSession` containing the staff UUID, target UUID, and custom `Inventory` instance.
-* **Sync Updates**: When the target player interacts with their inventory, the plugin loops over active registered sessions in memory (entirely thread-safe) and schedules GUI updates safely on the viewing staff's specific regional thread.
-* **Cleanup**: Cleans up automatically on `InventoryCloseEvent` (which runs on the closing player's thread) and `PlayerQuitEvent`.
+`Stuff+` uses a custom **Session Registry** to solve this. Instead of reading blocks from the world continually, we track active inspect sessions in memory and sync updates safely, preventing crashes completely.
 
 ---
 
-## Pillar 4: Velocity-Predicted Cinematic Spectator Camera
+## 4. Lag-free Spectate Follow (/monitor)
+Teleporting a spectating staff member to follow a player on every single tick causes heavy server lag and makes the camera rubber-band or stutter.
 
-Calling `teleportAsync` continuously on every server tick (20x/sec) for camera tracking creates severe visual stutter and rubber-banding, as the client is flooded with position corrections before its predicted movement is resolved.
-
-`Stuff+` optimizes `/monitor` tracking using a **Cinematic Interpolation Engine**:
-1. **4-Tick Dampener**: Follow tasks run every 4 ticks (200ms) instead of every tick, reducing correction packet saturation by 75%.
-2. **1.5-Block Threshold**: Teleports only trigger if the target has moved > 1.5 blocks from the last tracked reference location, filtering micro-movement jitters.
-3. **Velocity Prediction**: Evaluates target velocity vectors (`target.getVelocity()`) and projects coordinates slightly *ahead* of the target's vector, allowing the client-side prediction system to interpolate motion smoothly.
-4. **Follow Cooldown**: Enforces a minimum 2-cycle (400ms) delay between teleports so async futures can fully complete before a new teleport is queued.
+`Stuff+` implements **Cinematic Follow Damping**:
+* **Fewer updates**: Follow checks run every 200 milliseconds instead of 20 times a second, reducing server load by 75%.
+* **Smooth prediction**: The camera predicts where the target player is moving and teleports slightly ahead, giving you a smooth, professional view.
+* **Tether limit**: Staff can fly freely up to 10 blocks away from the target before being gently pulled back.
