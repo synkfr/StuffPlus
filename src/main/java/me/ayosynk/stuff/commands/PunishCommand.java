@@ -529,6 +529,58 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
                 });
                 break;
             }
+
+            case "stuffallow": {
+                if (args.length < 1) {
+                    sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + "<color:#E20000>Usage: /stuffallow <player> [remove]"));
+                    return;
+                }
+
+                boolean remove = args.length > 1 && args[1].equalsIgnoreCase("remove");
+
+                resolveTarget(targetInput).thenAccept(target -> {
+                    if (target == null) {
+                        sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getPlayerNotFound().replace("{player}", targetInput)));
+                        return;
+                    }
+
+                    if (target.uuid == null) {
+                        sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + "<color:#E20000>Cannot exempt a raw IP address from IP bans. Please specify a player."));
+                        return;
+                    }
+
+                    checkHierarchy(sender, target.uuid, target.ip, Punishment.Type.IP_BAN).thenAccept(allowed -> {
+                        if (!allowed) return;
+
+                        if (remove) {
+                            plugin.getDatabaseManager().removeAllow(target.uuid).thenAccept(success -> {
+                                if (!success) {
+                                    sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + "<color:#E2B700>This player is not currently exempted from IP bans."));
+                                    return;
+                                }
+
+                                sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getPlayerUnallowed().replace("{player}", target.name)));
+                                SchedulerUtils.runGlobal(plugin, () -> {
+                                    String broadcast = plugin.getMessageConfig().getPlayerUnallowedBroadcast()
+                                            .replace("{player}", target.name);
+                                    Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.ipban");
+                                });
+                            });
+                        } else {
+                            plugin.getDatabaseManager().addAllow(target.uuid).thenRun(() -> {
+                                sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getPlayerAllowed().replace("{player}", target.name)));
+                                SchedulerUtils.runGlobal(plugin, () -> {
+                                    String broadcast = plugin.getMessageConfig().getPlayerAllowedBroadcast()
+                                            .replace("{player}", target.name)
+                                            .replace("{sender}", senderName);
+                                    Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.ipban");
+                                });
+                            });
+                        }
+                    });
+                });
+                break;
+            }
         }
     }
 
@@ -682,6 +734,11 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
             }
             if (name.equals("warns")) {
                 List<String> sub = Arrays.asList("list", "clear");
+                String input = args[1].toLowerCase();
+                return sub.stream().filter(s -> s.startsWith(input)).collect(Collectors.toList());
+            }
+            if (name.equals("stuffallow")) {
+                List<String> sub = Arrays.asList("remove");
                 String input = args[1].toLowerCase();
                 return sub.stream().filter(s -> s.startsWith(input)).collect(Collectors.toList());
             }

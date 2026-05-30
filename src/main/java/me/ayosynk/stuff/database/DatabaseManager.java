@@ -74,6 +74,12 @@ public class DatabaseManager {
                     "last_seen TIMESTAMP NOT NULL" +
                     ")");
 
+            // Allows Table
+            stmt.execute("CREATE TABLE IF NOT EXISTS stuff_allows (" +
+                    "uuid VARCHAR(36) PRIMARY KEY, " +
+                    "active BOOLEAN NOT NULL" +
+                    ")");
+
             // Migration: Add weight column if not exists
             try {
                 stmt.execute("ALTER TABLE stuff_players ADD COLUMN weight INT NOT NULL DEFAULT 0");
@@ -169,6 +175,76 @@ public class DatabaseManager {
             } catch (SQLException e) {
                 plugin.getLogger().severe("Error looking up weight for UUID " + uuid + ": " + e.getMessage());
                 future.complete(0);
+            }
+        });
+        return future;
+    }
+
+    /**
+     * Records or updates a player's IP ban exemption bypass state.
+     */
+    public CompletableFuture<Void> addAllow(UUID uuid) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        SchedulerUtils.runAsync(plugin, () -> {
+            boolean isMysql = plugin.getPluginConfig().getStorageType().equalsIgnoreCase("mysql");
+            String query;
+            if (isMysql) {
+                query = "INSERT INTO stuff_allows (uuid, active) VALUES (?, 1) " +
+                        "ON DUPLICATE KEY UPDATE active = 1";
+            } else {
+                query = "INSERT INTO stuff_allows (uuid, active) VALUES (?, 1) " +
+                        "ON CONFLICT(uuid) DO UPDATE SET active = 1";
+            }
+            try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+                ps.setString(1, uuid.toString());
+                ps.executeUpdate();
+                future.complete(null);
+            } catch (SQLException e) {
+                plugin.getLogger().severe("Could not add allow bypass for UUID " + uuid + ": " + e.getMessage());
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
+    }
+
+    /**
+     * Asynchronously revokes an active IP ban exemption bypass.
+     */
+    public CompletableFuture<Boolean> removeAllow(UUID uuid) {
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+        SchedulerUtils.runAsync(plugin, () -> {
+            String query = "UPDATE stuff_allows SET active = 0 WHERE uuid = ? AND active = 1";
+            try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+                ps.setString(1, uuid.toString());
+                int rows = ps.executeUpdate();
+                future.complete(rows > 0);
+            } catch (SQLException e) {
+                plugin.getLogger().severe("Could not remove allow bypass for UUID " + uuid + ": " + e.getMessage());
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
+    }
+
+    /**
+     * Queries whether a player is active in the IP ban allow bypass list.
+     */
+    public CompletableFuture<Boolean> isAllowed(UUID uuid) {
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+        if (uuid == null) {
+            future.complete(false);
+            return future;
+        }
+        SchedulerUtils.runAsync(plugin, () -> {
+            String query = "SELECT active FROM stuff_allows WHERE uuid = ? AND active = 1 LIMIT 1";
+            try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+                ps.setString(1, uuid.toString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    future.complete(rs.next());
+                }
+            } catch (SQLException e) {
+                plugin.getLogger().severe("Error checking allow state for UUID " + uuid + ": " + e.getMessage());
+                future.complete(false);
             }
         });
         return future;

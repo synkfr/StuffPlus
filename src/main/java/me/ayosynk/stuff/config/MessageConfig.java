@@ -15,6 +15,10 @@ public class MessageConfig extends OkaeriConfig {
     private String noPermission = "<color:#E20000>You do not have permission to execute this command.";
     private String playerOnly = "<color:#E20000>This command can only be executed by a player.";
     private String cannotOverwritePunishment = "<color:#E20000>You cannot override a punishment placed by a higher-ranking staff member ({staff}).";
+    private String playerAllowed = "<color:#00E262>You have allowed {player} to bypass IP bans.";
+    private String playerAllowedBroadcast = "<color:#00E262>{player} has been exempted from IP bans by {sender}.";
+    private String playerUnallowed = "<color:#00E262>You have removed IP ban exemption for {player}.";
+    private String playerUnallowedBroadcast = "<color:#00E262>{player} is no longer exempted from IP bans.";
     private String playerNotFound = "<color:#E20000>Player '{player}' has not been found or registered.";
     private String invalidDuration = "<color:#E20000>Invalid duration format! Use e.g. 1d, 12h, 30m or perm.";
 
@@ -64,6 +68,10 @@ public class MessageConfig extends OkaeriConfig {
     public String getPrefix() { return prefix; }
     public String getNoPermission() { return noPermission; }
     public String getCannotOverwritePunishment() { return cannotOverwritePunishment; }
+    public String getPlayerAllowed() { return playerAllowed; }
+    public String getPlayerAllowedBroadcast() { return playerAllowedBroadcast; }
+    public String getPlayerUnallowed() { return playerUnallowed; }
+    public String getPlayerUnallowedBroadcast() { return playerUnallowedBroadcast; }
     public String getPlayerOnly() { return playerOnly; }
     public String getPlayerNotFound() { return playerNotFound; }
     public String getInvalidDuration() { return invalidDuration; }

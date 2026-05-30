@@ -52,30 +52,40 @@ public class PlayerListener implements Listener {
         UUID uuid = event.getUniqueId();
         String ip = event.getAddress().getHostAddress();
 
-        // 1. Check IP Ban
+        // 0. Check IP-ban allow exemption
+        boolean isExempt = false;
         try {
-            Punishment ipBan = plugin.getDatabaseManager().getActivePunishment(uuid, ip, Punishment.Type.IP_BAN).join();
-            if (ipBan != null) {
-                String timeStr = ipBan.getEndTime() != null ? DurationUtils.formatDuration(ipBan.getEndTime().getTime() - System.currentTimeMillis()) : "Permanent";
-                
-                String staffName = "Console";
-                if (ipBan.getPunisherUuid() != null) {
-                    String queryName = plugin.getDatabaseManager().getPlayerNameByUuid(ipBan.getPunisherUuid()).join();
-                    if (queryName != null) {
-                        staffName = queryName;
-                    }
-                }
-                String dateStr = DATE_FORMAT.format(ipBan.getStartTime());
-
-                event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, MiniMessageUtils.parse(plugin.getMessageConfig().getBanKickMessage()
-                        .replace("{reason}", "IP Ban: " + ipBan.getReason())
-                        .replace("{time}", timeStr)
-                        .replace("{staff}", staffName)
-                        .replace("{date}", dateStr)));
-                return;
-            }
+            isExempt = plugin.getDatabaseManager().isAllowed(uuid).join();
         } catch (Exception e) {
-            plugin.getLogger().severe("Error checking IP ban for " + uuid + ": " + e.getMessage());
+            plugin.getLogger().severe("Error checking IP-ban allow exemption for " + uuid + ": " + e.getMessage());
+        }
+
+        if (!isExempt) {
+            // 1. Check IP Ban
+            try {
+                Punishment ipBan = plugin.getDatabaseManager().getActivePunishment(uuid, ip, Punishment.Type.IP_BAN).join();
+                if (ipBan != null) {
+                    String timeStr = ipBan.getEndTime() != null ? DurationUtils.formatDuration(ipBan.getEndTime().getTime() - System.currentTimeMillis()) : "Permanent";
+                    
+                    String staffName = "Console";
+                    if (ipBan.getPunisherUuid() != null) {
+                        String queryName = plugin.getDatabaseManager().getPlayerNameByUuid(ipBan.getPunisherUuid()).join();
+                        if (queryName != null) {
+                            staffName = queryName;
+                        }
+                    }
+                    String dateStr = DATE_FORMAT.format(ipBan.getStartTime());
+
+                    event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, MiniMessageUtils.parse(plugin.getMessageConfig().getBanKickMessage()
+                            .replace("{reason}", "IP Ban: " + ipBan.getReason())
+                            .replace("{time}", timeStr)
+                            .replace("{staff}", staffName)
+                            .replace("{date}", dateStr)));
+                    return;
+                }
+            } catch (Exception e) {
+                plugin.getLogger().severe("Error checking IP ban for " + uuid + ": " + e.getMessage());
+            }
         }
 
         // 2. Check Player Ban

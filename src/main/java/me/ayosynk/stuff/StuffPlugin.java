@@ -190,6 +190,8 @@ public final class StuffPlugin extends JavaPlugin {
 
         me.ayosynk.stuff.commands.StaffRollbackCommand rollbackCommand = new me.ayosynk.stuff.commands.StaffRollbackCommand(this);
         registerDynamic(commandMap, "staffrollback", "Rollback all punishments issued by staff.", "/staffrollback <staff> [confirm]", Arrays.asList("rollbackstaff", "rollback"), rollbackCommand, rollbackCommand);
+
+        registerDynamic(commandMap, "stuffallow", "Exempt a player from IP bans.", "/stuffallow <player> [remove]", Arrays.asList("allowip", "allow"), punishCommand, punishCommand);
     }
 
     private void registerDynamic(org.bukkit.command.CommandMap commandMap, String name, String description, String usage, List<String> aliases, org.bukkit.command.CommandExecutor executor, org.bukkit.command.TabCompleter tabCompleter) {
