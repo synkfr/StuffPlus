@@ -5,3 +5,8 @@ out/
 *.log
 *.jar
 !gradle/wrapper/gradle-wrapper.jar
+
+# VitePress and Node.js
+node_modules/
+docs/.vitepress/dist/
+docs/.vitepress/cache/
