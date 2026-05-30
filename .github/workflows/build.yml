@@ -63,13 +63,15 @@ jobs:
           echo "Deploying rolling dev pre-release..."
           
           # Delete any previous rolling dev-latest release to maintain a clean rolling release
+          git tag -d dev-latest || true
           gh release delete dev-latest --yes || true
           git push --delete origin dev-latest || true
           
-          # Create rolling dev-latest pre-release
+          # Create rolling dev-latest pre-release pointing explicitly to the pushed commit
           gh release create "dev-latest" build/libs/*.jar \
             --prerelease \
             --title "Dev Build (Latest)" \
+            --target "${{ github.sha }}" \
             --notes "Latest development pre-release build from branch master. Commit: $SHORT_SHA (Run #${{ github.run_number }})."
 
       # 2. Production Release Deployment
