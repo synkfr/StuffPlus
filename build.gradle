@@ -1,0 +1,49 @@
+plugins {
+    id 'java'
+    id 'com.gradleup.shadow' version '9.0.0-beta4'
+}
+
+group = 'me.ayosynk.stuff'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://repo.papermc.io/repository/maven-public/' }
+    maven { url = 'https://repo.okaeri.cloud/releases' }
+}
+
+dependencies {
+    // Paper API
+    compileOnly 'io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT'
+
+    // Okaeri Config (Shaded)
+    implementation 'eu.okaeri:okaeri-configs-yaml-bukkit:5.0.13'
+    implementation 'eu.okaeri:okaeri-configs-serdes-bukkit:5.0.13'
+
+    // HikariCP (Shaded)
+    implementation 'com.zaxxer:HikariCP:5.1.0'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+    
+    // Set Java version compatibility
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+shadowJar {
+    archiveClassifier.set('')
+    
+    // Relocate dependencies to prevent conflicts
+    relocate 'eu.okaeri', 'me.ayosynk.stuff.libs.okaeri'
+    relocate 'com.zaxxer.hikari', 'me.ayosynk.stuff.libs.hikari'
+    
+    // Exclude SLF4J because Bukkit/Paper already provides it
+    exclude 'org/slf4j/**'
+}
+
+build {
+    dependsOn shadowJar
+}
