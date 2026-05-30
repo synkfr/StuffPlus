@@ -20,7 +20,7 @@ public class PluginConfig extends OkaeriConfig {
     private int mysqlPoolSize = 10;
     private boolean mysqlUseSsl = false;
 
-    @Comment("Vanish settings")
+    @Comment("Vanish settings (Bukkit only)")
     private boolean vanishSilentContainerClicks = true;
     private boolean vanishIgnorePressurePlates = true;
     private boolean vanishDisableMobTargeting = true;

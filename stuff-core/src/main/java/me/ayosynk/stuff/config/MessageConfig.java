@@ -51,18 +51,18 @@ public class MessageConfig extends OkaeriConfig {
     private String warnListItem = "<color:#A0A0A0>- {reason} by {sender} ({date})";
     private String noWarns = "<color:#A0A0A0>No warnings found for {player}.";
 
-    // Vanish messages
+    // Vanish messages (Bukkit only)
     private String vanishEnabled = "<color:#00E262>You are now vanished.";
     private String vanishDisabled = "<color:#00E262>You are no longer vanished.";
     private String vanishActionBar = "<color:#00E262>★ YOU ARE VANISHED ★";
 
-    // Monitor messages
+    // Monitor messages (Bukkit only)
     private String monitorStarted = "<color:#00E262>Now monitoring {player} in spectator mode.";
     private String monitorLeft = "<color:#00E262>You left the monitor state and returned to your original location.";
     private String monitorNotActive = "<color:#E20000>You are not currently monitoring anyone.";
     private String monitorTargetOffline = "<color:#E20000>The monitored player has gone offline. Returning to original location.";
 
-    // Invsee messages
+    // Invsee messages (Bukkit only)
     private String invseeOpened = "<color:#00E262>Opening live inventory of {player}...";
 
     public String getPrefix() { return prefix; }
