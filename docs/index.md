@@ -4,7 +4,7 @@ layout: home
 hero:
   name: "Stuff+"
   text: "Modern Moderation & Administrative Utilities"
-  tagline: "A simple, lightweight, and lag-free staff tool built for Paper and Folia servers"
+  tagline: "A powerful, cross-platform staff toolkit for Paper, Folia, and Velocity networks"
   image:
     src: https://raw.githubusercontent.com/synkfr/StuffPlus/master/docs/public/logo.png
     alt: Stuff+ Logo
@@ -20,23 +20,29 @@ hero:
       link: https://github.com/synkfr/StuffPlus
 
 features:
+  - icon: 🌐
+    title: Cross-Platform Architecture
+    details: Ships as two JARs — one for Paper/Purpur/Folia servers and one for Velocity proxies. Share the same database for network-wide moderation.
   - icon: 🧵
     title: Native Folia Support
-    details: Works perfectly on Folia's multi-threaded servers to keep your server running lag-free.
-  - icon: 👥
-    title: Complete Vanish
-    details: Hide completely from players, tab lists, and server listings. Prevents item pickups and mob attacks.
+    details: Built from the ground up for Folia's multi-threaded region architecture. Every operation uses Folia-safe schedulers.
   - icon: 🛡️
     title: Full Moderation Suite
-    details: Easily ban, mute, or warn rulebreakers permanently or temporarily. Logs are saved automatically.
+    details: Ban, mute, IP-ban, and warn rulebreakers permanently or temporarily. All punishments are enforced on both Paper and Velocity.
+  - icon: 🔗
+    title: Velocity Proxy Enforcement
+    details: Block banned players at the proxy gateway before they reach any backend server. Network-wide mute enforcement across all servers.
+  - icon: 👥
+    title: Complete Vanish (Paper)
+    details: Hide completely from players, tab lists, and server listings. Prevents item pickups, mob attacks, and container sounds.
   - icon: 🎒
-    title: Live Inventory Inspector (/invsee)
+    title: Live Inventory Inspector (Paper)
     details: View and change any player's inventory, armor, and active effects in real-time through an interactive menu.
   - icon: 👁️
-    title: Smooth Spectate Follow (/monitor)
+    title: Smooth Spectate Follow (Paper)
     details: Watch and automatically follow players smoothly in spectator mode without visual jitter.
   - icon: ⚡
-    title: Handy Staff Commands
+    title: Handy Staff Commands (Paper)
     details: Super fast shortcuts to toggle flight (/fly) or change your gamemode (/gmc, /gms, /gmsp, /gma).
   - icon: ⚖️
     title: Warning Escalation Ladder
@@ -47,10 +53,7 @@ features:
   - icon: 💬
     title: Discord Webhook Logs
     details: Native, thread-safe asynchronous logging to Discord channels using modern HttpClient integrations.
-  - icon: 🎟️
-    title: IP Exemption Allowlist
-    details: Exempt specific accounts to bypass IP-bans while keeping the primary IP ban fully active for others.
   - icon: 🔄
     title: Multi-Source Importer
-    details: Zero-config auto-scanning and H2/SQLite/SQL batch imports from Vanilla and 6 popular plugins.
+    details: Zero-config auto-scanning and batch imports from Vanilla, Essentials, LiteBans, AdvancedBan, MaxBans, BanManager, and BungeeAdminTools.
 ---

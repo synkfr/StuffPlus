@@ -1,5 +1,9 @@
 # Folia Support & Lag Safety
 
+::: info Paper Edition Only
+This page describes Folia-specific safety mechanisms in the **Paper edition** of Stuff+. The **Velocity edition** does not interact with the game world and does not require Folia safety — it runs entirely on the proxy.
+:::
+
 `Stuff+` is designed from the ground up to run perfectly on **Folia** multi-threaded servers as well as standard **Paper** and **Spigot** servers. 
 
 If you are running a large server network, you might know that Folia runs different regions of your world on separate threads to prevent lag. This makes standard admin tools crash or lag, but `Stuff+` keeps your gameplay completely safe and fast.

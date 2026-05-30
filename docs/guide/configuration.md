@@ -2,11 +2,13 @@
 
 `Stuff+` utilizes **Okaeri Config** to generate, validate, and dynamically update configurations. All configurations feature full hex color and gradient support via **Adventure MiniMessage** (e.g., `<gradient:#FF5F6D:#FFC371>Gradients</gradient>` or `<color:#00E262>Hex Colors</color>`).
 
+Both the **Paper** and **Velocity** editions use the **same configuration format**. This makes it easy to maintain consistent settings across your network.
+
 ---
 
 ## Plugin Configuration (`config.yml`)
 
-The primary configuration file manages database setups and administrative vanish settings:
+The primary configuration file manages database setups, vanish settings, warning escalation, and Discord webhooks:
 
 ```yaml
 # Storage type: SQLITE or MYSQL
@@ -21,7 +23,7 @@ mysql-password: "password"
 mysql-pool-size: 10
 mysql-use-ssl: false
 
-# Vanish settings
+# Vanish settings (Paper only — ignored on Velocity)
 vanish-silent-container-clicks: true
 vanish-ignore-pressure-plates: true
 vanish-disable-mob-targeting: true
@@ -51,24 +53,37 @@ discord-webhook-color-warn: "FFFF55"
 
 ### Config Mappings Explained
 
-* **`storage-type`**: Choose between local `sqlite` (zero configuration required) or a centralized remote `mysql` cluster.
-* **`mysql-*`**: Mappings for your database connections. Powered by an isolated **HikariCP** connection pool for maximum performance and asynchronous safety.
-* **`vanish-silent-container-clicks`**: If enabled, vanished staff can open chests, barrels, and furnaces silently, and container opening/closing animations are suppressed.
-* **`vanish-ignore-pressure-plates`**: Toggles plate trigger suppression. Staff will not trigger physical stone, wood, gold, or iron plate interactions.
-* **`vanish-disable-mob-targeting`**: Prevents monsters and hostile entities from targeting vanished staff.
-* **`vanish-disable-item-pickup`**: Blocks vanished staff from picking up floor items to prevent accidental inventory pollution or visual reveals.
+#### Database Settings
+* **`storage-type`**: Choose between local `sqlite` (zero configuration) or a centralized remote `mysql` cluster. Use `mysql` for network-wide punishment sharing between Paper and Velocity.
+* **`mysql-*`**: Connection settings for your MySQL database. Powered by an isolated **HikariCP** connection pool for maximum performance and asynchronous safety.
+
+::: tip Network Mode
+To share punishments across Paper + Velocity, set `storage-type: "mysql"` and use identical `mysql-*` credentials in both `config.yml` files.
+:::
+
+#### Vanish Settings (Paper Only)
+These settings are **only used on the Paper edition**. They are safely ignored if present in the Velocity config.
+
+* **`vanish-silent-container-clicks`**: Vanished staff can open chests, barrels, and furnaces silently. Container animations are suppressed.
+* **`vanish-ignore-pressure-plates`**: Staff will not trigger physical stone, wood, gold, or iron plate interactions.
+* **`vanish-disable-mob-targeting`**: Prevents hostile mobs from targeting vanished staff.
+* **`vanish-disable-item-pickup`**: Blocks vanished staff from picking up floor items to prevent visual reveals.
+
+#### Warning Escalation
 * **`warning-ladder-enabled`**: Toggles warning escalation. If active, punishments scale automatically with player warning thresholds.
-* **`warning-ladder-actions`**: Custom commands mapping. When warning count matches the key, the mapped command is executed safely on the global scheduler.
+* **`warning-ladder-actions`**: Custom commands mapping. When active warning count matches the key, the mapped command is executed safely. The `{player}` placeholder is replaced with the target's name.
+
+#### Discord Webhooks
 * **`discord-webhook-enabled`**: Enable or disable non-blocking logs to your Discord webhook channel.
 * **`discord-webhook-url`**: Your channel's secure Discord Webhook link.
 * **`discord-webhook-username` / `avatar-url`**: Customized profiles displayed in Discord embeds.
-* **`discord-webhook-color-*`**: Custom embed border hex colors for each event.
+* **`discord-webhook-color-*`**: Custom embed border hex colors for ban, mute, and warning events.
 
 ---
 
 ## Message Configuration (`messages.yml`)
 
-This file allows you to customize all system messages with rich color styling:
+This file allows you to customize all system messages with rich color styling. The format is identical on both Paper and Velocity.
 
 ```yaml
 # Prefix for all plugin messages
@@ -94,9 +109,29 @@ player-banned: "<color:#00E262>You have banned {player} for {time}. Reason: {rea
 player-banned-broadcast: "<color:#E20000>{player} has been banned by {sender} for {time}. Reason: {reason}"
 ban-kick-message: "<color:#E20000>You have been banned from the server!\n\nReason: {reason}\nExpiry: {time}"
 
-# Vanish
+# Vanish (Paper only — these keys are unused on Velocity)
 vanish-enabled: "<color:#00E262>You are now vanished."
 vanish-disabled: "<color:#00E262>You are no longer vanished."
 vanish-action-bar: "<color:#00E262>★ YOU ARE VANISHED ★"
 ```
 
+### Available Placeholders
+
+| Placeholder | Description | Used In |
+| :--- | :--- | :--- |
+| `{player}` | Target player name | All punishment messages |
+| `{sender}` | Staff member name | Broadcast messages |
+| `{time}` | Duration / expiry string | Bans, mutes, kick messages |
+| `{reason}` | Punishment reason | All punishment messages |
+| `{staff}` | Senior staff who placed original punishment | Hierarchy overwrite denial |
+| `{ip}` | IP address | IP ban messages |
+| `{date}` | Timestamp date string | Warning list items |
+
+---
+
+## Config File Locations
+
+| Platform | Config Directory |
+| :--- | :--- |
+| **Paper (Paper/Purpur/Folia)** | `plugins/Stuff/config.yml` and `plugins/Stuff/messages.yml` |
+| **Velocity** | `plugins/stuffplus/config.yml` and `plugins/stuffplus/messages.yml` |
