@@ -91,4 +91,12 @@
   - [x] Weave overwrite checks inside `/mute`, `/tempmute`, `/unmute`, `/ban`, `/tempban`, `/unban`, `/ip-ban`, `/tempip-ban`, `/unip-ban`, and `/warns clear`
   - [x] Compile and package updated shadow JAR with full administrative protection
 
+- [x] **Phase 16: IP-Ban Allow Exemption Bypass**
+  - [x] Add dynamic bypass allow feedback messages and getters to `MessageConfig.java`
+  - [x] Create `stuff_allows` tracking table and query methods (`addAllow`, `removeAllow`, `isAllowed`) in `DatabaseManager.java`
+  - [x] Wire pre-login allow exemption check to completely bypass active IP bans in `PlayerListener.java`
+  - [x] Register `/stuffallow` command (aliases `/allow`, `/allowip`) dynamically in `StuffPlugin.java`
+  - [x] Implement `/stuffallow` case, weight protection check, and tab completion suggestions in `PunishCommand.java`
+  - [x] Compile and verify clean shaded shadow JAR compilation without errors
+
 
