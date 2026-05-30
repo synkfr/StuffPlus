@@ -29,6 +29,19 @@ By utilizing regional entity schedulers, thread-safe packet delivery pipelines, 
 * **Dynamic Time Parsing**: Sophisticated time parser supporting complex units (e.g. `1d`, `12h`, `45m`) and infinite duration mappings (`perm`).
 * **Relational Storage**: Backed by a high-performance database manager supporting both local SQLite databases and remote MySQL servers, managed via a shaded, thread-safe HikariCP connection pool.
 
+### Punishment Importer & Migration
+* **7 Supported Platforms**: Seamlessly import mutes, bans, warnings, and IP bans from:
+  * **Vanilla Minecraft**: Direct imports from `banned-players.json` and `banned-ips.json` in the server root.
+  * **Essentials / EssentialsX**: Automated scans of mutes and bans in user profiles under `plugins/Essentials/userdata/*.yml`.
+  * **LiteBans**: Migrates bans, mutes, and warnings from SQL/SQLite connection structures.
+  * **AdvancedBan**: Integrates and normalizes legacy SQL `Punishments` tables.
+  * **MaxBans**: Dynamic name-to-UUID resolving and migration of bans, IP bans, mutes, and warnings.
+  * **BanManager**: Integrates historical player bans, mutes, and warnings.
+  * **BungeeAdminTools**: Imports entries from database tables `bat_ban` and `bat_mute`.
+* **Dynamic Auto-Scanning**: Scans your server's active files on command, extracts SQLite paths or remote SQL database credentials, and allows zero-configuration migrations.
+* **Batch Operations**: Commits imported records inside a single transaction using batch inserts, migrating thousands of records instantly.
+* **Non-Blocking Futures**: Runs connection setups, configuration decodes, and database commits fully asynchronously on non-blocking thread pools.
+
 ### Spectator Follow
 * **Cinematic Camera Tracking**: Teleports staff in spectator mode to follow the target seamlessly.
 * **Velocity-Predicted Follow**: Computes target movements and velocity vectors (`target.getVelocity()`) to position the camera slightly ahead of the target, eliminating stutter and rubber-banding.

@@ -41,6 +41,22 @@ The compiled shaded plugin ready for production deployment will be located at:
 build/libs/Stuff-1.0.0.jar
 ```
 
+---
+
+## Migrating from Other Plugins
+
+`Stuff+` includes a powerful multi-source administrative migration and import tool. You can migrate mutes, bans, warnings, and IP bans from **7 popular moderation systems**:
+
+1. **Vanilla Minecraft**: Imports bans and IP bans natively from `banned-players.json` and `banned-ips.json` in the server root.
+2. **Essentials / EssentialsX**: Scans and parses active ban/mute records inside player profiles under `plugins/Essentials/userdata/*.yml`.
+3. **LiteBans**: ConnectsSQLite/SQL structures to migrate historical and active mutes, bans, warnings, and kicks.
+4. **AdvancedBan**: Normalizes and imports entries from the legacy SQL `Punishments` table.
+5. **MaxBans**: Performs dynamic name-to-UUID resolving and imports bans, IP bans, mutes, and warnings.
+6. **BanManager**: Integrates legacy player bans, player mutes, and warning tables.
+7. **BungeeAdminTools**: Imports entries from database tables `bat_ban` and `bat_mute`.
+
+Run the `/stuffimport` command in-game to view auto-detected local setups, or see the [Commands Guide](/guide/commands) for more details.
+
 ::: info Relocated Dependencies
 The build system automatically relocates and packages all required libraries inside the final JAR file, ensuring it runs out of the box with zero conflicts against any other plugins on your server.
 :::
