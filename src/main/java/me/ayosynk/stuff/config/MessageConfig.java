@@ -14,6 +14,7 @@ public class MessageConfig extends OkaeriConfig {
     // General messages
     private String noPermission = "<color:#E20000>You do not have permission to execute this command.";
     private String playerOnly = "<color:#E20000>This command can only be executed by a player.";
+    private String cannotOverwritePunishment = "<color:#E20000>You cannot override a punishment placed by a higher-ranking staff member ({staff}).";
     private String playerNotFound = "<color:#E20000>Player '{player}' has not been found or registered.";
     private String invalidDuration = "<color:#E20000>Invalid duration format! Use e.g. 1d, 12h, 30m or perm.";
 
@@ -62,6 +63,7 @@ public class MessageConfig extends OkaeriConfig {
 
     public String getPrefix() { return prefix; }
     public String getNoPermission() { return noPermission; }
+    public String getCannotOverwritePunishment() { return cannotOverwritePunishment; }
     public String getPlayerOnly() { return playerOnly; }
     public String getPlayerNotFound() { return playerNotFound; }
     public String getInvalidDuration() { return invalidDuration; }

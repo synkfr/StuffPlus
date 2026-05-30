@@ -74,6 +74,11 @@ public class DatabaseManager {
                     "last_seen TIMESTAMP NOT NULL" +
                     ")");
 
+            // Migration: Add weight column if not exists
+            try {
+                stmt.execute("ALTER TABLE stuff_players ADD COLUMN weight INT NOT NULL DEFAULT 0");
+            } catch (SQLException ignored) {}
+
             // Punishments Table (using clean standard primary key)
             String storage = plugin.getPluginConfig().getStorageType();
             String query;
@@ -111,17 +116,17 @@ public class DatabaseManager {
     /**
      * Saves or updates a player's registry record in the database.
      */
-    public CompletableFuture<Void> savePlayer(UUID uuid, String username, String ip) {
+    public CompletableFuture<Void> savePlayer(UUID uuid, String username, String ip, int weight) {
         CompletableFuture<Void> future = new CompletableFuture<>();
         SchedulerUtils.runAsync(plugin, () -> {
             boolean isMysql = plugin.getPluginConfig().getStorageType().equalsIgnoreCase("mysql");
             String query;
             if (isMysql) {
-                query = "INSERT INTO stuff_players (uuid, username, ip_address, last_seen) VALUES (?, ?, ?, ?) " +
-                        "ON DUPLICATE KEY UPDATE username = VALUES(username), ip_address = VALUES(ip_address), last_seen = VALUES(last_seen)";
+                query = "INSERT INTO stuff_players (uuid, username, ip_address, last_seen, weight) VALUES (?, ?, ?, ?, ?) " +
+                        "ON DUPLICATE KEY UPDATE username = VALUES(username), ip_address = VALUES(ip_address), last_seen = VALUES(last_seen), weight = VALUES(weight)";
             } else {
-                query = "INSERT INTO stuff_players (uuid, username, ip_address, last_seen) VALUES (?, ?, ?, ?) " +
-                        "ON CONFLICT(uuid) DO UPDATE SET username = excluded.username, ip_address = excluded.ip_address, last_seen = excluded.last_seen";
+                query = "INSERT INTO stuff_players (uuid, username, ip_address, last_seen, weight) VALUES (?, ?, ?, ?, ?) " +
+                        "ON CONFLICT(uuid) DO UPDATE SET username = excluded.username, ip_address = excluded.ip_address, last_seen = excluded.last_seen, weight = excluded.weight";
             }
 
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
@@ -129,11 +134,41 @@ public class DatabaseManager {
                 ps.setString(2, username);
                 ps.setString(3, ip);
                 ps.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
+                ps.setInt(5, weight);
                 ps.executeUpdate();
                 future.complete(null);
             } catch (SQLException e) {
                 plugin.getLogger().severe("Could not save player record for " + username + ": " + e.getMessage());
                 future.completeExceptionally(e);
+            }
+        });
+        return future;
+    }
+
+    /**
+     * Asynchronously queries the cached hierarchy weight of a player.
+     * Returns Integer.MAX_VALUE if uuid is null (representing Console).
+     */
+    public CompletableFuture<Integer> getPlayerWeight(UUID uuid) {
+        CompletableFuture<Integer> future = new CompletableFuture<>();
+        if (uuid == null) {
+            future.complete(Integer.MAX_VALUE); // Console has infinite weight
+            return future;
+        }
+        SchedulerUtils.runAsync(plugin, () -> {
+            String query = "SELECT weight FROM stuff_players WHERE uuid = ? LIMIT 1";
+            try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+                ps.setString(1, uuid.toString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        future.complete(rs.getInt("weight"));
+                    } else {
+                        future.complete(0);
+                    }
+                }
+            } catch (SQLException e) {
+                plugin.getLogger().severe("Error looking up weight for UUID " + uuid + ": " + e.getMessage());
+                future.complete(0);
             }
         });
         return future;

@@ -88,48 +88,52 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
                         return;
                     }
 
-                    Timestamp start = new Timestamp(System.currentTimeMillis());
-                    Timestamp end = finalDuration > 0 ? new Timestamp(System.currentTimeMillis() + finalDuration) : null;
+                    checkHierarchy(sender, target.uuid, target.ip, Punishment.Type.MUTE).thenAccept(allowed -> {
+                        if (!allowed) return;
 
-                    Punishment p = new Punishment(target.uuid, target.ip, senderUuid, Punishment.Type.MUTE, reason, start, end, true);
-                    plugin.getDatabaseManager().addPunishment(p).thenRun(() -> {
-                        String timeStr = finalDuration > 0 ? DurationUtils.formatDuration(finalDuration) : "Permanent";
-                        // Send success feedback
-                        sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getPlayerMuted()
-                                .replace("{player}", target.name)
-                                .replace("{time}", timeStr)
-                                .replace("{reason}", reason)));
+                        Timestamp start = new Timestamp(System.currentTimeMillis());
+                        Timestamp end = finalDuration > 0 ? new Timestamp(System.currentTimeMillis() + finalDuration) : null;
 
-                        // Global announcement
-                        SchedulerUtils.runGlobal(plugin, () -> {
-                            String broadcast = plugin.getMessageConfig().getPlayerMutedBroadcast()
+                        Punishment p = new Punishment(target.uuid, target.ip, senderUuid, Punishment.Type.MUTE, reason, start, end, true);
+                        plugin.getDatabaseManager().addPunishment(p).thenRun(() -> {
+                            String timeStr = finalDuration > 0 ? DurationUtils.formatDuration(finalDuration) : "Permanent";
+                            // Send success feedback
+                            sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getPlayerMuted()
                                     .replace("{player}", target.name)
-                                    .replace("{sender}", senderName)
                                     .replace("{time}", timeStr)
-                                    .replace("{reason}", reason);
-                            Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.mute");
-                        });
+                                    .replace("{reason}", reason)));
 
-                        // Notify online target if they are online
-                        Player targetPlayer = Bukkit.getPlayer(target.uuid);
-                        if (targetPlayer != null && targetPlayer.isOnline()) {
-                            SchedulerUtils.runEntity(plugin, targetPlayer, () -> {
-                                targetPlayer.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getYouAreMuted()
+                            // Global announcement
+                            SchedulerUtils.runGlobal(plugin, () -> {
+                                String broadcast = plugin.getMessageConfig().getPlayerMutedBroadcast()
+                                        .replace("{player}", target.name)
+                                        .replace("{sender}", senderName)
                                         .replace("{time}", timeStr)
-                                        .replace("{reason}", reason)));
+                                        .replace("{reason}", reason);
+                                Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.mute");
                             });
-                        }
 
-                        // Trigger Discord Webhook
-                        me.ayosynk.stuff.utils.DiscordWebhookUtils.sendEmbed(
-                                plugin,
-                                "Player Muted",
-                                plugin.getPluginConfig().getDiscordWebhookColorMute(),
-                                target.name,
-                                senderName,
-                                timeStr,
-                                reason
-                        );
+                            // Notify online target if they are online
+                            Player targetPlayer = Bukkit.getPlayer(target.uuid);
+                            if (targetPlayer != null && targetPlayer.isOnline()) {
+                                SchedulerUtils.runEntity(plugin, targetPlayer, () -> {
+                                    targetPlayer.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getYouAreMuted()
+                                            .replace("{time}", timeStr)
+                                            .replace("{reason}", reason)));
+                                });
+                            }
+
+                            // Trigger Discord Webhook
+                            me.ayosynk.stuff.utils.DiscordWebhookUtils.sendEmbed(
+                                    plugin,
+                                    "Player Muted",
+                                    plugin.getPluginConfig().getDiscordWebhookColorMute(),
+                                    target.name,
+                                    senderName,
+                                    timeStr,
+                                    reason
+                            );
+                        });
                     });
                 });
                 break;
@@ -142,18 +146,22 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
                         return;
                     }
 
-                    plugin.getDatabaseManager().deactivatePunishment(target.uuid, Punishment.Type.MUTE).thenAccept(success -> {
-                        if (!success) {
-                            sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + "<color:#E2B700>This player is not currently muted."));
-                            return;
-                        }
+                    checkHierarchy(sender, target.uuid, target.ip, Punishment.Type.MUTE).thenAccept(allowed -> {
+                        if (!allowed) return;
 
-                        sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getPlayerUnmuted().replace("{player}", target.name)));
-                        SchedulerUtils.runGlobal(plugin, () -> {
-                            String broadcast = plugin.getMessageConfig().getPlayerUnmutedBroadcast()
-                                    .replace("{player}", target.name)
-                                    .replace("{sender}", senderName);
-                            Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.mute");
+                        plugin.getDatabaseManager().deactivatePunishment(target.uuid, Punishment.Type.MUTE).thenAccept(success -> {
+                            if (!success) {
+                                sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + "<color:#E2B700>This player is not currently muted."));
+                                return;
+                            }
+
+                            sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getPlayerUnmuted().replace("{player}", target.name)));
+                            SchedulerUtils.runGlobal(plugin, () -> {
+                                String broadcast = plugin.getMessageConfig().getPlayerUnmutedBroadcast()
+                                        .replace("{player}", target.name)
+                                        .replace("{sender}", senderName);
+                                Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.mute");
+                            });
                         });
                     });
                 });
@@ -188,46 +196,50 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
                         return;
                     }
 
-                    Timestamp start = new Timestamp(System.currentTimeMillis());
-                    Timestamp end = finalDuration > 0 ? new Timestamp(System.currentTimeMillis() + finalDuration) : null;
+                    checkHierarchy(sender, target.uuid, target.ip, Punishment.Type.BAN).thenAccept(allowed -> {
+                        if (!allowed) return;
 
-                    Punishment p = new Punishment(target.uuid, target.ip, senderUuid, Punishment.Type.BAN, reason, start, end, true);
-                    plugin.getDatabaseManager().addPunishment(p).thenRun(() -> {
-                        String timeStr = finalDuration > 0 ? DurationUtils.formatDuration(finalDuration) : "Permanent";
-                        sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getPlayerBanned()
-                                .replace("{player}", target.name)
-                                .replace("{time}", timeStr)
-                                .replace("{reason}", reason)));
+                        Timestamp start = new Timestamp(System.currentTimeMillis());
+                        Timestamp end = finalDuration > 0 ? new Timestamp(System.currentTimeMillis() + finalDuration) : null;
 
-                        SchedulerUtils.runGlobal(plugin, () -> {
-                            String broadcast = plugin.getMessageConfig().getPlayerBannedBroadcast()
+                        Punishment p = new Punishment(target.uuid, target.ip, senderUuid, Punishment.Type.BAN, reason, start, end, true);
+                        plugin.getDatabaseManager().addPunishment(p).thenRun(() -> {
+                            String timeStr = finalDuration > 0 ? DurationUtils.formatDuration(finalDuration) : "Permanent";
+                            sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getPlayerBanned()
                                     .replace("{player}", target.name)
-                                    .replace("{sender}", senderName)
                                     .replace("{time}", timeStr)
-                                    .replace("{reason}", reason);
-                            Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.ban");
-                        });
+                                    .replace("{reason}", reason)));
 
-                        // Kick target player if online (Folia Regional Safe)
-                        Player targetPlayer = Bukkit.getPlayer(target.uuid);
-                        if (targetPlayer != null && targetPlayer.isOnline()) {
-                            SchedulerUtils.runEntity(plugin, targetPlayer, () -> {
-                                targetPlayer.kick(MiniMessageUtils.parse(plugin.getMessageConfig().getBanKickMessage()
-                                        .replace("{reason}", reason)
-                                        .replace("{time}", timeStr)));
+                            SchedulerUtils.runGlobal(plugin, () -> {
+                                String broadcast = plugin.getMessageConfig().getPlayerBannedBroadcast()
+                                        .replace("{player}", target.name)
+                                        .replace("{sender}", senderName)
+                                        .replace("{time}", timeStr)
+                                        .replace("{reason}", reason);
+                                Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.ban");
                             });
-                        }
 
-                        // Trigger Discord Webhook
-                        me.ayosynk.stuff.utils.DiscordWebhookUtils.sendEmbed(
-                                plugin,
-                                "Player Banned",
-                                plugin.getPluginConfig().getDiscordWebhookColorBan(),
-                                target.name,
-                                senderName,
-                                timeStr,
-                                reason
-                        );
+                            // Kick target player if online (Folia Regional Safe)
+                            Player targetPlayer = Bukkit.getPlayer(target.uuid);
+                            if (targetPlayer != null && targetPlayer.isOnline()) {
+                                SchedulerUtils.runEntity(plugin, targetPlayer, () -> {
+                                    targetPlayer.kick(MiniMessageUtils.parse(plugin.getMessageConfig().getBanKickMessage()
+                                            .replace("{reason}", reason)
+                                            .replace("{time}", timeStr)));
+                                });
+                            }
+
+                            // Trigger Discord Webhook
+                            me.ayosynk.stuff.utils.DiscordWebhookUtils.sendEmbed(
+                                    plugin,
+                                    "Player Banned",
+                                    plugin.getPluginConfig().getDiscordWebhookColorBan(),
+                                    target.name,
+                                    senderName,
+                                    timeStr,
+                                    reason
+                            );
+                        });
                     });
                 });
                 break;
@@ -240,18 +252,22 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
                         return;
                     }
 
-                    plugin.getDatabaseManager().deactivatePunishment(target.uuid, Punishment.Type.BAN).thenAccept(success -> {
-                        if (!success) {
-                            sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + "<color:#E2B700>This player is not currently banned."));
-                            return;
-                        }
+                    checkHierarchy(sender, target.uuid, target.ip, Punishment.Type.BAN).thenAccept(allowed -> {
+                        if (!allowed) return;
 
-                        sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getPlayerUnbanned().replace("{player}", target.name)));
-                        SchedulerUtils.runGlobal(plugin, () -> {
-                            String broadcast = plugin.getMessageConfig().getPlayerUnbannedBroadcast()
-                                    .replace("{player}", target.name)
-                                    .replace("{sender}", senderName);
-                            Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.ban");
+                        plugin.getDatabaseManager().deactivatePunishment(target.uuid, Punishment.Type.BAN).thenAccept(success -> {
+                            if (!success) {
+                                sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + "<color:#E2B700>This player is not currently banned."));
+                                return;
+                            }
+
+                            sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getPlayerUnbanned().replace("{player}", target.name)));
+                            SchedulerUtils.runGlobal(plugin, () -> {
+                                String broadcast = plugin.getMessageConfig().getPlayerUnbannedBroadcast()
+                                        .replace("{player}", target.name)
+                                        .replace("{sender}", senderName);
+                                Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.ban");
+                            });
                         });
                     });
                 });
@@ -291,70 +307,85 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
                         return;
                     }
 
-                    Timestamp start = new Timestamp(System.currentTimeMillis());
-                    Timestamp end = finalDuration > 0 ? new Timestamp(System.currentTimeMillis() + finalDuration) : null;
+                    checkHierarchy(sender, target.uuid, target.ip, Punishment.Type.IP_BAN).thenAccept(allowed -> {
+                        if (!allowed) return;
 
-                    Punishment p = new Punishment(target.uuid, target.ip, senderUuid, Punishment.Type.IP_BAN, reason, start, end, true);
-                    plugin.getDatabaseManager().addPunishment(p).thenRun(() -> {
-                        String timeStr = finalDuration > 0 ? DurationUtils.formatDuration(finalDuration) : "Permanent";
-                        sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getIpBanned()
-                                .replace("{player}", target.name)
-                                .replace("{ip}", target.ip)
-                                .replace("{time}", timeStr)
-                                .replace("{reason}", reason)));
+                        Timestamp start = new Timestamp(System.currentTimeMillis());
+                        Timestamp end = finalDuration > 0 ? new Timestamp(System.currentTimeMillis() + finalDuration) : null;
 
-                        SchedulerUtils.runGlobal(plugin, () -> {
-                            String broadcast = plugin.getMessageConfig().getIpBannedBroadcast()
+                        Punishment p = new Punishment(target.uuid, target.ip, senderUuid, Punishment.Type.IP_BAN, reason, start, end, true);
+                        plugin.getDatabaseManager().addPunishment(p).thenRun(() -> {
+                            String timeStr = finalDuration > 0 ? DurationUtils.formatDuration(finalDuration) : "Permanent";
+                            sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getIpBanned()
                                     .replace("{player}", target.name)
                                     .replace("{ip}", target.ip)
-                                    .replace("{sender}", senderName)
                                     .replace("{time}", timeStr)
-                                    .replace("{reason}", reason);
-                            Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.ipban");
-                        });
+                                    .replace("{reason}", reason)));
 
-                        // Kick any player matching the IP
-                        SchedulerUtils.runGlobal(plugin, () -> {
-                            for (Player pOnline : Bukkit.getOnlinePlayers()) {
-                                String onlineIp = pOnline.getAddress().getAddress().getHostAddress();
-                                if (onlineIp.equals(target.ip)) {
-                                    SchedulerUtils.runEntity(plugin, pOnline, () -> {
-                                        pOnline.kick(MiniMessageUtils.parse(plugin.getMessageConfig().getBanKickMessage()
-                                                .replace("{reason}", "IP Ban: " + reason)
-                                                .replace("{time}", timeStr)));
-                                    });
+                            SchedulerUtils.runGlobal(plugin, () -> {
+                                String broadcast = plugin.getMessageConfig().getIpBannedBroadcast()
+                                        .replace("{player}", target.name)
+                                        .replace("{ip}", target.ip)
+                                        .replace("{sender}", senderName)
+                                        .replace("{time}", timeStr)
+                                        .replace("{reason}", reason);
+                                Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.ipban");
+                            });
+
+                            // Kick any player matching the IP
+                            SchedulerUtils.runGlobal(plugin, () -> {
+                                for (Player pOnline : Bukkit.getOnlinePlayers()) {
+                                    String onlineIp = pOnline.getAddress().getAddress().getHostAddress();
+                                    if (onlineIp.equals(target.ip)) {
+                                        SchedulerUtils.runEntity(plugin, pOnline, () -> {
+                                            pOnline.kick(MiniMessageUtils.parse(plugin.getMessageConfig().getBanKickMessage()
+                                                    .replace("{reason}", "IP Ban: " + reason)
+                                                    .replace("{time}", timeStr)));
+                                        });
+                                    }
                                 }
-                            }
-                        });
+                            });
 
-                        // Trigger Discord Webhook
-                        me.ayosynk.stuff.utils.DiscordWebhookUtils.sendEmbed(
-                                plugin,
-                                "Player IP-Banned",
-                                plugin.getPluginConfig().getDiscordWebhookColorBan(),
-                                target.name + " (" + target.ip + ")",
-                                senderName,
-                                timeStr,
-                                reason
-                        );
+                            // Trigger Discord Webhook
+                            me.ayosynk.stuff.utils.DiscordWebhookUtils.sendEmbed(
+                                    plugin,
+                                    "Player IP-Banned",
+                                    plugin.getPluginConfig().getDiscordWebhookColorBan(),
+                                    target.name + " (" + target.ip + ")",
+                                    senderName,
+                                    timeStr,
+                                    reason
+                            );
+                        });
                     });
                 });
                 break;
             }
 
             case "unip-ban": {
-                plugin.getDatabaseManager().deactivateIpBan(targetInput).thenAccept(success -> {
-                    if (!success) {
-                        sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + "<color:#E2B700>This IP or Player is not currently IP-banned."));
+                resolveTarget(targetInput).thenAccept(target -> {
+                    if (target == null) {
+                        sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getPlayerNotFound().replace("{player}", targetInput)));
                         return;
                     }
 
-                    sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getIpUnbanned().replace("{ip}", targetInput)));
-                    SchedulerUtils.runGlobal(plugin, () -> {
-                        String broadcast = plugin.getMessageConfig().getIpUnbannedBroadcast()
-                                .replace("{ip}", targetInput)
-                                .replace("{sender}", senderName);
-                        Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.ipban");
+                    checkHierarchy(sender, target.uuid, target.ip, Punishment.Type.IP_BAN).thenAccept(allowed -> {
+                        if (!allowed) return;
+
+                        plugin.getDatabaseManager().deactivateIpBan(target.ip).thenAccept(success -> {
+                            if (!success) {
+                                sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + "<color:#E2B700>This IP or Player is not currently IP-banned."));
+                                return;
+                            }
+
+                            sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getIpUnbanned().replace("{ip}", target.name)));
+                            SchedulerUtils.runGlobal(plugin, () -> {
+                                String broadcast = plugin.getMessageConfig().getIpUnbannedBroadcast()
+                                        .replace("{ip}", target.name)
+                                        .replace("{sender}", senderName);
+                                Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.ipban");
+                            });
+                        });
                     });
                 });
                 break;
@@ -430,8 +461,50 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
                     String subAction = args.length > 1 ? args[1].toLowerCase() : "list";
 
                     if (subAction.equals("clear")) {
-                        plugin.getDatabaseManager().clearWarnings(target.uuid).thenAccept(success -> {
-                            sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getWarnCleared().replace("{player}", target.name)));
+                        plugin.getDatabaseManager().getWarnings(target.uuid).thenAccept(warns -> {
+                            if (warns.isEmpty()) {
+                                sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getNoWarns().replace("{player}", target.name)));
+                                return;
+                            }
+
+                            List<CompletableFuture<Integer>> futures = new ArrayList<>();
+                            for (Punishment w : warns) {
+                                futures.add(plugin.getDatabaseManager().getPlayerWeight(w.getPunisherUuid()));
+                            }
+
+                            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).thenRun(() -> {
+                                int executorWeight = getHierarchyWeight(sender);
+                                boolean blocked = false;
+                                UUID higherStaffUuid = null;
+                                for (int i = 0; i < warns.size(); i++) {
+                                    int punisherWeight = futures.get(i).join();
+                                    if (executorWeight < punisherWeight) {
+                                        blocked = true;
+                                        higherStaffUuid = warns.get(i).getPunisherUuid();
+                                        break;
+                                    }
+                                }
+
+                                if (blocked) {
+                                    final UUID finalStaffUuid = higherStaffUuid;
+                                    String originalStaffName = "Console";
+                                    if (finalStaffUuid != null) {
+                                        plugin.getDatabaseManager().getPlayerNameByUuid(finalStaffUuid).thenAccept(name -> {
+                                            String finalName = name != null ? name : "Console";
+                                            sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + 
+                                                    plugin.getMessageConfig().getCannotOverwritePunishment().replace("{staff}", finalName)));
+                                        });
+                                    } else {
+                                        sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + 
+                                                plugin.getMessageConfig().getCannotOverwritePunishment().replace("{staff}", originalStaffName)));
+                                    }
+                                    return;
+                                }
+
+                                plugin.getDatabaseManager().clearWarnings(target.uuid).thenAccept(success -> {
+                                    sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getWarnCleared().replace("{player}", target.name)));
+                                });
+                            });
                         });
                     } else {
                         plugin.getDatabaseManager().getWarnings(target.uuid).thenAccept(warns -> {
@@ -518,6 +591,63 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
             this.name = name;
             this.ip = ip;
         }
+    }
+
+    private int getHierarchyWeight(CommandSender sender) {
+        if (!(sender instanceof Player)) {
+            return Integer.MAX_VALUE; // Console
+        }
+        Player player = (Player) sender;
+        int maxWeight = 0;
+        for (org.bukkit.permissions.PermissionAttachmentInfo info : player.getEffectivePermissions()) {
+            String perm = info.getPermission().toLowerCase();
+            if (perm.startsWith("stuff.hierarchy.weight.")) {
+                try {
+                    int weight = Integer.parseInt(perm.substring("stuff.hierarchy.weight.".length()));
+                    if (weight > maxWeight) {
+                        maxWeight = weight;
+                    }
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        return maxWeight;
+    }
+
+    private CompletableFuture<Boolean> checkHierarchy(CommandSender sender, UUID targetUuid, String targetIp, Punishment.Type type) {
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+        plugin.getDatabaseManager().getActivePunishment(targetUuid, targetIp, type).thenAccept(active -> {
+            if (active == null) {
+                future.complete(true); // No active punishment, allowed!
+                return;
+            }
+
+            // Look up original punisher's weight
+            plugin.getDatabaseManager().getPlayerWeight(active.getPunisherUuid()).thenAccept(punisherWeight -> {
+                int executorWeight = getHierarchyWeight(sender);
+                if (executorWeight < punisherWeight) {
+                    // Blocked! Resolve punisher name to display
+                    String originalStaffName = "Console";
+                    if (active.getPunisherUuid() != null) {
+                        plugin.getDatabaseManager().getPlayerNameByUuid(active.getPunisherUuid()).thenAccept(name -> {
+                            String finalName = name != null ? name : "Console";
+                            sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + 
+                                    plugin.getMessageConfig().getCannotOverwritePunishment().replace("{staff}", finalName)));
+                            future.complete(false);
+                        });
+                    } else {
+                        sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + 
+                                plugin.getMessageConfig().getCannotOverwritePunishment().replace("{staff}", originalStaffName)));
+                        future.complete(false);
+                    }
+                } else {
+                    future.complete(true); // Equal or higher weight, allowed!
+                }
+            });
+        }).exceptionally(ex -> {
+            future.complete(true); // Fallback to allow if database check fails
+            return null;
+        });
+        return future;
     }
 
     // Dynamic Tab Completion

@@ -119,9 +119,23 @@ public class PlayerListener implements Listener {
             event.joinMessage(null);
         }
 
+        // Determine player weight from permissions node: stuff.hierarchy.weight.<number>
+        int weight = 0;
+        for (org.bukkit.permissions.PermissionAttachmentInfo info : player.getEffectivePermissions()) {
+            String perm = info.getPermission().toLowerCase();
+            if (perm.startsWith("stuff.hierarchy.weight.")) {
+                try {
+                    int w = Integer.parseInt(perm.substring("stuff.hierarchy.weight.".length()));
+                    if (w > weight) {
+                        weight = w;
+                    }
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+
         // 1. Cache name and save/update record in Database
         plugin.cacheName(name);
-        plugin.getDatabaseManager().savePlayer(uuid, name, ip).thenRun(() -> {
+        plugin.getDatabaseManager().savePlayer(uuid, name, ip, weight).thenRun(() -> {
             // Asynchronously scan for alt accounts registered on this IP
             plugin.getDatabaseManager().getAltsByIp(ip).thenAccept(alts -> {
                 if (alts.size() > 1) {
