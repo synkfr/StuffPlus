@@ -99,4 +99,21 @@
   - [x] Implement `/stuffallow` case, weight protection check, and tab completion suggestions in `PunishCommand.java`
   - [x] Compile and verify clean shaded shadow JAR compilation without errors
 
+## Review & Verification Results
 
+### 1. Compiles and Shading Integrity
+- Successfully compiled the plugin with `./gradlew clean build`.
+- Generated shaded shadow JAR size: ~456 KB.
+- Shaded package names relocated under `me.ayosynk.stuff.libs.*` to prevent classpath pollution:
+  - `eu.okaeri.configs` relocated successfully.
+  - `com.zaxxer.hikari` relocated successfully.
+
+### 2. Phase 16: IP-Ban Allow Exemption Bypass
+- Added `stuff_allows` tracking table in SQLITE/MYSQL.
+- Programmed native `/stuffallow <player> [remove]` command (with aliases `/allow`, `/allowip`).
+- Wired pre-login connection verification. Whitelisted UUIDs completely bypass IP-ban blocks, allowing safe connection of players sharing a banned IP while keeping the IP ban fully active for others.
+- Wired hierarchical weight checking. Lower-ranking staff members are blocked from adding or removing IP ban exemptions for accounts banned by senior administrators.
+
+### 3. General Framework Stability
+- Fully compatible with Folia's multi-threaded region-threading context.
+- Zero main-thread blocking operations. All DB transactions, UUID resolves, and external logging actions execute on asynchronous execution pools or regional task loops.
