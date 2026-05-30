@@ -44,6 +44,9 @@ By utilizing regional entity schedulers, thread-safe packet delivery pipelines, 
 * **Instant Gamemode Shifts**: Rapid commands including creative (`/gmc`), survival (`/gms`), spectator (`/gmsp`), and adventure (`/gma`).
 * **Flight Mode**: Seamless command flight toggles via `/fly`.
 
+### 7. Telemetry & Analytics
+* **Shaded bStats Integration**: Native support for real-time statistical metrics via shaded and relocated **bStats** configurations (ID: 31675). Allows server counts and player deployment metrics to be reported anonymously without class conflicts.
+
 ---
 
 ## Command & Permission Reference
