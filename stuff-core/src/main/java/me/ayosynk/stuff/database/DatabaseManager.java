@@ -1,8 +1,7 @@
 package me.ayosynk.stuff.database;
 
-import me.ayosynk.stuff.StuffPlugin;
+import me.ayosynk.stuff.StuffPlatform;
 import me.ayosynk.stuff.config.PluginConfig;
-import me.ayosynk.stuff.utils.SchedulerUtils;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -17,19 +16,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ForkJoinPool;
 import me.ayosynk.stuff.migration.ImportedPunishment;
 
+/**
+ * Platform-agnostic database manager.
+ * Uses ForkJoinPool.commonPool() for async operations instead of Bukkit schedulers.
+ */
 public class DatabaseManager {
 
-    private final StuffPlugin plugin;
+    private final StuffPlatform platform;
     private HikariDataSource dataSource;
 
-    public DatabaseManager(StuffPlugin plugin) {
-        this.plugin = plugin;
+    public DatabaseManager(StuffPlatform platform) {
+        this.platform = platform;
     }
 
     public void init() {
-        PluginConfig config = plugin.getPluginConfig();
+        PluginConfig config = platform.getPluginConfig();
         HikariConfig hikariConfig = new HikariConfig();
 
         if (config.getStorageType().equalsIgnoreCase("mysql")) {
@@ -44,7 +48,7 @@ public class DatabaseManager {
             hikariConfig.setMaximumPoolSize(config.getMysqlPoolSize());
         } else {
             // SQLite
-            File dbFile = new File(plugin.getDataFolder(), "database.db");
+            File dbFile = new File(platform.getDataFolder(), "database.db");
             if (!dbFile.getParentFile().exists()) {
                 dbFile.getParentFile().mkdirs();
             }
@@ -86,8 +90,8 @@ public class DatabaseManager {
                 stmt.execute("ALTER TABLE stuff_players ADD COLUMN weight INT NOT NULL DEFAULT 0");
             } catch (SQLException ignored) {}
 
-            // Punishments Table (using clean standard primary key)
-            String storage = plugin.getPluginConfig().getStorageType();
+            // Punishments Table
+            String storage = platform.getPluginConfig().getStorageType();
             String query;
             if (storage.equalsIgnoreCase("mysql")) {
                 query = "CREATE TABLE IF NOT EXISTS stuff_punishments (" +
@@ -116,7 +120,7 @@ public class DatabaseManager {
             }
             stmt.execute(query);
         } catch (SQLException e) {
-            plugin.getLogger().severe("Could not setup database tables: " + e.getMessage());
+            platform.getLogger().severe("Could not setup database tables: " + e.getMessage());
         }
     }
 
@@ -124,9 +128,8 @@ public class DatabaseManager {
      * Saves or updates a player's registry record in the database.
      */
     public CompletableFuture<Void> savePlayer(UUID uuid, String username, String ip, int weight) {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        SchedulerUtils.runAsync(plugin, () -> {
-            boolean isMysql = plugin.getPluginConfig().getStorageType().equalsIgnoreCase("mysql");
+        return CompletableFuture.runAsync(() -> {
+            boolean isMysql = platform.getPluginConfig().getStorageType().equalsIgnoreCase("mysql");
             String query;
             if (isMysql) {
                 query = "INSERT INTO stuff_players (uuid, username, ip_address, last_seen, weight) VALUES (?, ?, ?, ?, ?) " +
@@ -143,13 +146,11 @@ public class DatabaseManager {
                 ps.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
                 ps.setInt(5, weight);
                 ps.executeUpdate();
-                future.complete(null);
             } catch (SQLException e) {
-                plugin.getLogger().severe("Could not save player record for " + username + ": " + e.getMessage());
-                future.completeExceptionally(e);
+                platform.getLogger().severe("Could not save player record for " + username + ": " + e.getMessage());
+                throw new RuntimeException(e);
             }
-        });
-        return future;
+        }, ForkJoinPool.commonPool());
     }
 
     /**
@@ -157,37 +158,33 @@ public class DatabaseManager {
      * Returns Integer.MAX_VALUE if uuid is null (representing Console).
      */
     public CompletableFuture<Integer> getPlayerWeight(UUID uuid) {
-        CompletableFuture<Integer> future = new CompletableFuture<>();
         if (uuid == null) {
-            future.complete(Integer.MAX_VALUE); // Console has infinite weight
-            return future;
+            return CompletableFuture.completedFuture(Integer.MAX_VALUE);
         }
-        SchedulerUtils.runAsync(plugin, () -> {
+        return CompletableFuture.supplyAsync(() -> {
             String query = "SELECT weight FROM stuff_players WHERE uuid = ? LIMIT 1";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, uuid.toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        future.complete(rs.getInt("weight"));
+                        return rs.getInt("weight");
                     } else {
-                        future.complete(0);
+                        return 0;
                     }
                 }
             } catch (SQLException e) {
-                plugin.getLogger().severe("Error looking up weight for UUID " + uuid + ": " + e.getMessage());
-                future.complete(0);
+                platform.getLogger().severe("Error looking up weight for UUID " + uuid + ": " + e.getMessage());
+                return 0;
             }
-        });
-        return future;
+        }, ForkJoinPool.commonPool());
     }
 
     /**
      * Records or updates a player's IP ban exemption bypass state.
      */
     public CompletableFuture<Void> addAllow(UUID uuid) {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        SchedulerUtils.runAsync(plugin, () -> {
-            boolean isMysql = plugin.getPluginConfig().getStorageType().equalsIgnoreCase("mysql");
+        return CompletableFuture.runAsync(() -> {
+            boolean isMysql = platform.getPluginConfig().getStorageType().equalsIgnoreCase("mysql");
             String query;
             if (isMysql) {
                 query = "INSERT INTO stuff_allows (uuid, active) VALUES (?, 1) " +
@@ -199,112 +196,100 @@ public class DatabaseManager {
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, uuid.toString());
                 ps.executeUpdate();
-                future.complete(null);
             } catch (SQLException e) {
-                plugin.getLogger().severe("Could not add allow bypass for UUID " + uuid + ": " + e.getMessage());
-                future.completeExceptionally(e);
+                platform.getLogger().severe("Could not add allow bypass for UUID " + uuid + ": " + e.getMessage());
+                throw new RuntimeException(e);
             }
-        });
-        return future;
+        }, ForkJoinPool.commonPool());
     }
 
     /**
      * Asynchronously revokes an active IP ban exemption bypass.
      */
     public CompletableFuture<Boolean> removeAllow(UUID uuid) {
-        CompletableFuture<Boolean> future = new CompletableFuture<>();
-        SchedulerUtils.runAsync(plugin, () -> {
+        return CompletableFuture.supplyAsync(() -> {
             String query = "UPDATE stuff_allows SET active = 0 WHERE uuid = ? AND active = 1";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, uuid.toString());
                 int rows = ps.executeUpdate();
-                future.complete(rows > 0);
+                return rows > 0;
             } catch (SQLException e) {
-                plugin.getLogger().severe("Could not remove allow bypass for UUID " + uuid + ": " + e.getMessage());
-                future.completeExceptionally(e);
+                platform.getLogger().severe("Could not remove allow bypass for UUID " + uuid + ": " + e.getMessage());
+                throw new RuntimeException(e);
             }
-        });
-        return future;
+        }, ForkJoinPool.commonPool());
     }
 
     /**
      * Queries whether a player is active in the IP ban allow bypass list.
      */
     public CompletableFuture<Boolean> isAllowed(UUID uuid) {
-        CompletableFuture<Boolean> future = new CompletableFuture<>();
         if (uuid == null) {
-            future.complete(false);
-            return future;
+            return CompletableFuture.completedFuture(false);
         }
-        SchedulerUtils.runAsync(plugin, () -> {
+        return CompletableFuture.supplyAsync(() -> {
             String query = "SELECT active FROM stuff_allows WHERE uuid = ? AND active = 1 LIMIT 1";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, uuid.toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    future.complete(rs.next());
+                    return rs.next();
                 }
             } catch (SQLException e) {
-                plugin.getLogger().severe("Error checking allow state for UUID " + uuid + ": " + e.getMessage());
-                future.complete(false);
+                platform.getLogger().severe("Error checking allow state for UUID " + uuid + ": " + e.getMessage());
+                return false;
             }
-        });
-        return future;
+        }, ForkJoinPool.commonPool());
     }
 
     /**
      * Queries a player's UUID by their username (case insensitive).
      */
     public CompletableFuture<UUID> getPlayerUuidByName(String username) {
-        CompletableFuture<UUID> future = new CompletableFuture<>();
-        SchedulerUtils.runAsync(plugin, () -> {
+        return CompletableFuture.supplyAsync(() -> {
             String query = "SELECT uuid FROM stuff_players WHERE LOWER(username) = LOWER(?) LIMIT 1";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, username);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        future.complete(UUID.fromString(rs.getString("uuid")));
+                        return UUID.fromString(rs.getString("uuid"));
                     } else {
-                        future.complete(null);
+                        return null;
                     }
                 }
             } catch (SQLException e) {
-                plugin.getLogger().severe("Error looking up UUID for username " + username + ": " + e.getMessage());
-                future.completeExceptionally(e);
+                platform.getLogger().severe("Error looking up UUID for username " + username + ": " + e.getMessage());
+                throw new RuntimeException(e);
             }
-        });
-        return future;
+        }, ForkJoinPool.commonPool());
     }
 
     /**
      * Queries a player's last recorded username by their UUID.
      */
     public CompletableFuture<String> getPlayerNameByUuid(UUID uuid) {
-        CompletableFuture<String> future = new CompletableFuture<>();
-        SchedulerUtils.runAsync(plugin, () -> {
+        return CompletableFuture.supplyAsync(() -> {
             String query = "SELECT username FROM stuff_players WHERE uuid = ? LIMIT 1";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, uuid.toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        future.complete(rs.getString("username"));
+                        return rs.getString("username");
                     } else {
-                        future.complete(null);
+                        return null;
                     }
                 }
             } catch (SQLException e) {
-                plugin.getLogger().severe("Error looking up username for UUID " + uuid + ": " + e.getMessage());
-                future.completeExceptionally(e);
+                platform.getLogger().severe("Error looking up username for UUID " + uuid + ": " + e.getMessage());
+                throw new RuntimeException(e);
             }
-        });
-        return future;
+        }, ForkJoinPool.commonPool());
     }
 
     /**
      * Returns a list of all player names ever registered.
      */
     public CompletableFuture<List<String>> getAllRegisteredNames() {
-        CompletableFuture<List<String>> future = new CompletableFuture<>();
-        SchedulerUtils.runAsync(plugin, () -> {
+        return CompletableFuture.supplyAsync(() -> {
             List<String> names = new ArrayList<>();
             String query = "SELECT username FROM stuff_players";
             try (Connection conn = dataSource.getConnection();
@@ -313,21 +298,18 @@ public class DatabaseManager {
                 while (rs.next()) {
                     names.add(rs.getString("username"));
                 }
-                future.complete(names);
             } catch (SQLException e) {
-                plugin.getLogger().severe("Error fetching all registered player names: " + e.getMessage());
-                future.complete(names);
+                platform.getLogger().severe("Error fetching all registered player names: " + e.getMessage());
             }
-        });
-        return future;
+            return names;
+        }, ForkJoinPool.commonPool());
     }
 
     /**
      * Inserts a new punishment.
      */
     public CompletableFuture<Void> addPunishment(Punishment p) {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        SchedulerUtils.runAsync(plugin, () -> {
+        return CompletableFuture.runAsync(() -> {
             String query = "INSERT INTO stuff_punishments (uuid, ip_address, punisher_uuid, type, reason, start_time, end_time, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, p.getUuid() != null ? p.getUuid().toString() : null);
@@ -339,61 +321,54 @@ public class DatabaseManager {
                 ps.setTimestamp(7, p.getEndTime());
                 ps.setBoolean(8, p.isActive());
                 ps.executeUpdate();
-                future.complete(null);
             } catch (SQLException e) {
-                plugin.getLogger().severe("Could not add punishment to database: " + e.getMessage());
-                future.completeExceptionally(e);
+                platform.getLogger().severe("Could not add punishment to database: " + e.getMessage());
+                throw new RuntimeException(e);
             }
-        });
-        return future;
+        }, ForkJoinPool.commonPool());
     }
 
     /**
      * Deactivates a specific type of punishment for a player.
      */
     public CompletableFuture<Boolean> deactivatePunishment(UUID uuid, Punishment.Type type) {
-        CompletableFuture<Boolean> future = new CompletableFuture<>();
-        SchedulerUtils.runAsync(plugin, () -> {
+        return CompletableFuture.supplyAsync(() -> {
             String query = "UPDATE stuff_punishments SET active = 0 WHERE uuid = ? AND type = ? AND active = 1";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, uuid.toString());
                 ps.setString(2, type.name());
                 int rows = ps.executeUpdate();
-                future.complete(rows > 0);
+                return rows > 0;
             } catch (SQLException e) {
-                plugin.getLogger().severe("Could not deactivate punishment " + type + " for UUID " + uuid + ": " + e.getMessage());
-                future.completeExceptionally(e);
+                platform.getLogger().severe("Could not deactivate punishment " + type + " for UUID " + uuid + ": " + e.getMessage());
+                throw new RuntimeException(e);
             }
-        });
-        return future;
+        }, ForkJoinPool.commonPool());
     }
 
     /**
      * Deactivates an IP-ban.
      */
     public CompletableFuture<Boolean> deactivateIpBan(String target) {
-        CompletableFuture<Boolean> future = new CompletableFuture<>();
-        SchedulerUtils.runAsync(plugin, () -> {
+        return CompletableFuture.supplyAsync(() -> {
             String query = "UPDATE stuff_punishments SET active = 0 WHERE (ip_address = ? OR uuid = (SELECT uuid FROM stuff_players WHERE LOWER(username) = LOWER(?) LIMIT 1)) AND type = 'IP_BAN' AND active = 1";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, target);
                 ps.setString(2, target);
                 int rows = ps.executeUpdate();
-                future.complete(rows > 0);
+                return rows > 0;
             } catch (SQLException e) {
-                plugin.getLogger().severe("Could not deactivate IP ban for " + target + ": " + e.getMessage());
-                future.completeExceptionally(e);
+                platform.getLogger().severe("Could not deactivate IP ban for " + target + ": " + e.getMessage());
+                throw new RuntimeException(e);
             }
-        });
-        return future;
+        }, ForkJoinPool.commonPool());
     }
 
     /**
      * Queries warnings for a player.
      */
     public CompletableFuture<List<Punishment>> getWarnings(UUID uuid) {
-        CompletableFuture<List<Punishment>> future = new CompletableFuture<>();
-        SchedulerUtils.runAsync(plugin, () -> {
+        return CompletableFuture.supplyAsync(() -> {
             List<Punishment> warns = new ArrayList<>();
             String query = "SELECT * FROM stuff_punishments WHERE uuid = ? AND type = 'WARN' AND active = 1 ORDER BY start_time DESC";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
@@ -403,32 +378,29 @@ public class DatabaseManager {
                         warns.add(mapPunishment(rs));
                     }
                 }
-                future.complete(warns);
             } catch (SQLException e) {
-                plugin.getLogger().severe("Could not retrieve warnings for " + uuid + ": " + e.getMessage());
-                future.completeExceptionally(e);
+                platform.getLogger().severe("Could not retrieve warnings for " + uuid + ": " + e.getMessage());
+                throw new RuntimeException(e);
             }
-        });
-        return future;
+            return warns;
+        }, ForkJoinPool.commonPool());
     }
 
     /**
      * Clears warnings for a player.
      */
     public CompletableFuture<Boolean> clearWarnings(UUID uuid) {
-        CompletableFuture<Boolean> future = new CompletableFuture<>();
-        SchedulerUtils.runAsync(plugin, () -> {
+        return CompletableFuture.supplyAsync(() -> {
             String query = "UPDATE stuff_punishments SET active = 0 WHERE uuid = ? AND type = 'WARN' AND active = 1";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, uuid.toString());
                 int rows = ps.executeUpdate();
-                future.complete(rows > 0);
+                return rows > 0;
             } catch (SQLException e) {
-                plugin.getLogger().severe("Could not clear warnings for " + uuid + ": " + e.getMessage());
-                future.completeExceptionally(e);
+                platform.getLogger().severe("Could not clear warnings for " + uuid + ": " + e.getMessage());
+                throw new RuntimeException(e);
             }
-        });
-        return future;
+        }, ForkJoinPool.commonPool());
     }
 
     /**
@@ -436,8 +408,7 @@ public class DatabaseManager {
      * Deactivates the punishment automatically if it is expired.
      */
     public CompletableFuture<Punishment> getActivePunishment(UUID uuid, String ip, Punishment.Type type) {
-        CompletableFuture<Punishment> future = new CompletableFuture<>();
-        SchedulerUtils.runAsync(plugin, () -> {
+        return CompletableFuture.supplyAsync(() -> {
             String query;
             if (type == Punishment.Type.IP_BAN) {
                 query = "SELECT * FROM stuff_punishments WHERE (ip_address = ? OR uuid = ?) AND type = 'IP_BAN' AND active = 1 LIMIT 1";
@@ -460,32 +431,31 @@ public class DatabaseManager {
                         if (p.isExpired()) {
                             // Deactivate expired punishment lazily
                             deactivatePunishmentById(p.getId());
-                            future.complete(null);
+                            return null;
                         } else {
-                            future.complete(p);
+                            return p;
                         }
                     } else {
-                        future.complete(null);
+                        return null;
                     }
                 }
             } catch (SQLException e) {
-                plugin.getLogger().severe("Could not check active punishment " + type + ": " + e.getMessage());
-                future.completeExceptionally(e);
+                platform.getLogger().severe("Could not check active punishment " + type + ": " + e.getMessage());
+                throw new RuntimeException(e);
             }
-        });
-        return future;
+        }, ForkJoinPool.commonPool());
     }
 
     private void deactivatePunishmentById(int id) {
-        SchedulerUtils.runAsync(plugin, () -> {
+        CompletableFuture.runAsync(() -> {
             String query = "UPDATE stuff_punishments SET active = 0 WHERE id = ?";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setInt(1, id);
                 ps.executeUpdate();
             } catch (SQLException e) {
-                plugin.getLogger().severe("Could not deactivate expired punishment " + id + ": " + e.getMessage());
+                platform.getLogger().severe("Could not deactivate expired punishment " + id + ": " + e.getMessage());
             }
-        });
+        }, ForkJoinPool.commonPool());
     }
 
     public static class PlayerRecord {
@@ -504,8 +474,7 @@ public class DatabaseManager {
      * Retrieves all punishments (active and inactive) associated with a target player UUID.
      */
     public CompletableFuture<List<Punishment>> getHistory(UUID target) {
-        CompletableFuture<List<Punishment>> future = new CompletableFuture<>();
-        SchedulerUtils.runAsync(plugin, () -> {
+        return CompletableFuture.supplyAsync(() -> {
             List<Punishment> history = new ArrayList<>();
             String query = "SELECT * FROM stuff_punishments WHERE uuid = ? ORDER BY start_time DESC";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
@@ -515,21 +484,19 @@ public class DatabaseManager {
                         history.add(mapPunishment(rs));
                     }
                 }
-                future.complete(history);
             } catch (SQLException e) {
-                plugin.getLogger().severe("Error fetching history for UUID " + target + ": " + e.getMessage());
-                future.completeExceptionally(e);
+                platform.getLogger().severe("Error fetching history for UUID " + target + ": " + e.getMessage());
+                throw new RuntimeException(e);
             }
-        });
-        return future;
+            return history;
+        }, ForkJoinPool.commonPool());
     }
 
     /**
      * Retrieves all punishments issued by a staff player UUID.
      */
     public CompletableFuture<List<Punishment>> getStaffHistory(UUID staff) {
-        CompletableFuture<List<Punishment>> future = new CompletableFuture<>();
-        SchedulerUtils.runAsync(plugin, () -> {
+        return CompletableFuture.supplyAsync(() -> {
             List<Punishment> history = new ArrayList<>();
             String query = "SELECT * FROM stuff_punishments WHERE punisher_uuid = ? ORDER BY start_time DESC";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
@@ -539,13 +506,12 @@ public class DatabaseManager {
                         history.add(mapPunishment(rs));
                     }
                 }
-                future.complete(history);
             } catch (SQLException e) {
-                plugin.getLogger().severe("Error fetching staff history for UUID " + staff + ": " + e.getMessage());
-                future.completeExceptionally(e);
+                platform.getLogger().severe("Error fetching staff history for UUID " + staff + ": " + e.getMessage());
+                throw new RuntimeException(e);
             }
-        });
-        return future;
+            return history;
+        }, ForkJoinPool.commonPool());
     }
 
     /**
@@ -553,27 +519,23 @@ public class DatabaseManager {
      * Returns the count of rolled-back punishments.
      */
     public CompletableFuture<Integer> rollbackStaff(UUID staff) {
-        CompletableFuture<Integer> future = new CompletableFuture<>();
-        SchedulerUtils.runAsync(plugin, () -> {
+        return CompletableFuture.supplyAsync(() -> {
             String query = "UPDATE stuff_punishments SET active = 0 WHERE punisher_uuid = ? AND active = 1";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, staff.toString());
-                int rows = ps.executeUpdate();
-                future.complete(rows);
+                return ps.executeUpdate();
             } catch (SQLException e) {
-                plugin.getLogger().severe("Error rolling back punishments for staff UUID " + staff + ": " + e.getMessage());
-                future.completeExceptionally(e);
+                platform.getLogger().severe("Error rolling back punishments for staff UUID " + staff + ": " + e.getMessage());
+                throw new RuntimeException(e);
             }
-        });
-        return future;
+        }, ForkJoinPool.commonPool());
     }
 
     /**
      * Finds other registered player records that have logged in with the same IP address.
      */
     public CompletableFuture<List<PlayerRecord>> getAltsByIp(String ip) {
-        CompletableFuture<List<PlayerRecord>> future = new CompletableFuture<>();
-        SchedulerUtils.runAsync(plugin, () -> {
+        return CompletableFuture.supplyAsync(() -> {
             List<PlayerRecord> alts = new ArrayList<>();
             String query = "SELECT uuid, username, ip_address FROM stuff_players WHERE ip_address = ?";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
@@ -587,34 +549,30 @@ public class DatabaseManager {
                         ));
                     }
                 }
-                future.complete(alts);
             } catch (SQLException e) {
-                plugin.getLogger().severe("Error searching alts for IP " + ip + ": " + e.getMessage());
-                future.completeExceptionally(e);
+                platform.getLogger().severe("Error searching alts for IP " + ip + ": " + e.getMessage());
             }
-        });
-        return future;
+            return alts;
+        }, ForkJoinPool.commonPool());
     }
 
     public CompletableFuture<PlayerRecord> getPlayerRecord(UUID uuid) {
-        CompletableFuture<PlayerRecord> future = new CompletableFuture<>();
-        SchedulerUtils.runAsync(plugin, () -> {
+        return CompletableFuture.supplyAsync(() -> {
             String query = "SELECT username, ip_address FROM stuff_players WHERE uuid = ? LIMIT 1";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, uuid.toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        future.complete(new PlayerRecord(uuid, rs.getString("username"), rs.getString("ip_address")));
+                        return new PlayerRecord(uuid, rs.getString("username"), rs.getString("ip_address"));
                     } else {
-                        future.complete(null);
+                        return null;
                     }
                 }
             } catch (SQLException e) {
-                plugin.getLogger().severe("Error looking up player record for UUID " + uuid + ": " + e.getMessage());
-                future.completeExceptionally(e);
+                platform.getLogger().severe("Error looking up player record for UUID " + uuid + ": " + e.getMessage());
+                throw new RuntimeException(e);
             }
-        });
-        return future;
+        }, ForkJoinPool.commonPool());
     }
 
     private Punishment mapPunishment(ResultSet rs) throws SQLException {
@@ -641,8 +599,7 @@ public class DatabaseManager {
      * Inserts are executed inside a single transaction.
      */
     public CompletableFuture<Integer> importBatch(List<ImportedPunishment> punishments) {
-        CompletableFuture<Integer> future = new CompletableFuture<>();
-        SchedulerUtils.runAsync(plugin, () -> {
+        return CompletableFuture.supplyAsync(() -> {
             String query = "INSERT INTO stuff_punishments (uuid, ip_address, punisher_uuid, type, reason, start_time, end_time, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             try (Connection conn = dataSource.getConnection()) {
                 conn.setAutoCommit(false);
@@ -666,7 +623,7 @@ public class DatabaseManager {
                             total++;
                         }
                     }
-                    future.complete(total);
+                    return total;
                 } catch (SQLException e) {
                     conn.rollback();
                     throw e;
@@ -674,11 +631,9 @@ public class DatabaseManager {
                     conn.setAutoCommit(true);
                 }
             } catch (SQLException e) {
-                plugin.getLogger().severe("Failed to execute batch import: " + e.getMessage());
-                future.completeExceptionally(e);
+                platform.getLogger().severe("Failed to execute batch import: " + e.getMessage());
+                throw new RuntimeException(e);
             }
-        });
-        return future;
+        }, ForkJoinPool.commonPool());
     }
 }
-
