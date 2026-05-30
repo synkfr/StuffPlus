@@ -1,57 +1,24 @@
+// Root build.gradle — shared configuration for all subprojects
 plugins {
-    id 'java'
-    id 'com.gradleup.shadow' version '9.0.0-beta4'
+    id 'com.gradleup.shadow' version '9.0.0-beta4' apply false
 }
 
-group = 'me.ayosynk.stuff'
-version = '1.0.0'
+subprojects {
+    apply plugin: 'java'
 
-repositories {
-    mavenCentral()
-    maven { url = 'https://repo.papermc.io/repository/maven-public/' }
-    maven { url = 'https://repo.okaeri.cloud/releases' }
-}
+    group = 'me.ayosynk.stuff'
+    version = '1.0.0'
 
-dependencies {
-    // Paper API
-    compileOnly 'io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT'
+    repositories {
+        mavenCentral()
+        maven { url = 'https://repo.papermc.io/repository/maven-public/' }
+        maven { url = 'https://repo.okaeri.cloud/releases' }
+    }
 
-    // Okaeri Config (Shaded)
-    implementation 'eu.okaeri:okaeri-configs-yaml-bukkit:5.0.13'
-    implementation 'eu.okaeri:okaeri-configs-serdes-bukkit:5.0.13'
-
-    // HikariCP (Shaded)
-    implementation 'com.zaxxer:HikariCP:5.1.0'
-
-    // bStats (Shaded)
-    implementation 'org.bstats:bstats-bukkit:3.0.2'
-
-    // H2 Database (Shaded for LiteBans Bungee/Velocity MVStore migration support)
-    implementation 'com.h2database:h2:2.2.224'
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
-    options.compilerArgs << '-parameters'
-    
-    // Set Java version compatibility
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
-}
-
-shadowJar {
-    archiveClassifier.set('')
-    
-    // Relocate dependencies to prevent conflicts
-    relocate 'eu.okaeri', 'me.ayosynk.stuff.libs.okaeri'
-    relocate 'com.zaxxer.hikari', 'me.ayosynk.stuff.libs.hikari'
-    relocate 'org.bstats', 'me.ayosynk.stuff.libs.bstats'
-    relocate 'org.h2', 'me.ayosynk.stuff.libs.h2'
-    
-    // Exclude SLF4J because Bukkit/Paper already provides it
-    exclude 'org/slf4j/**'
-}
-
-build {
-    dependsOn shadowJar
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.compilerArgs << '-parameters'
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
 }

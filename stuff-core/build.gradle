@@ -1,0 +1,28 @@
+// stuff-core: Platform-agnostic shared library
+// Contains: DatabaseManager, Punishment model, Configs, Migration, Utils
+// NO Bukkit or Velocity imports allowed here
+
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    // Okaeri Config (core YAML, no Bukkit serializer here)
+    api 'eu.okaeri:okaeri-configs-yaml-snakeyaml:5.0.13'
+
+    // HikariCP connection pool
+    api 'com.zaxxer:HikariCP:5.1.0'
+
+    // H2 Database (for LiteBans MVStore migration support)
+    api 'com.h2database:h2:2.2.224'
+
+    // SQLite JDBC driver
+    api 'org.xerial:sqlite-jdbc:3.45.1.0'
+
+    // Gson (for Vanilla JSON parsing in migrations)
+    api 'com.google.code.gson:gson:2.10.1'
+
+    // Adventure API (for cross-platform Component support)
+    compileOnly 'net.kyori:adventure-api:4.17.0'
+    compileOnly 'net.kyori:adventure-text-minimessage:4.17.0'
+}

@@ -1,0 +1,34 @@
+// stuff-velocity: Velocity proxy plugin
+plugins {
+    id 'com.gradleup.shadow'
+}
+
+dependencies {
+    // Inherit the shared core module
+    implementation project(':stuff-core')
+
+    // Velocity API (provided at runtime by the proxy)
+    compileOnly 'com.velocitypowered:velocity-api:3.3.0-SNAPSHOT'
+    annotationProcessor 'com.velocitypowered:velocity-api:3.3.0-SNAPSHOT'
+
+    // Okaeri snakeyaml configurer (for Velocity — no Bukkit dependency)
+    implementation 'eu.okaeri:okaeri-configs-yaml-snakeyaml:5.0.13'
+}
+
+shadowJar {
+    archiveBaseName.set('StuffPlus-Velocity')
+    archiveClassifier.set('')
+
+    // Relocate shaded dependencies to prevent conflicts
+    relocate 'eu.okaeri', 'me.ayosynk.stuff.libs.okaeri'
+    relocate 'com.zaxxer.hikari', 'me.ayosynk.stuff.libs.hikari'
+    relocate 'org.h2', 'me.ayosynk.stuff.libs.h2'
+    relocate 'org.xerial', 'me.ayosynk.stuff.libs.xerial'
+
+    // Exclude SLF4J — Velocity provides it
+    exclude 'org/slf4j/**'
+}
+
+build {
+    dependsOn shadowJar
+}

@@ -1,0 +1,38 @@
+// stuff-paper: Paper/Purpur/Folia backend plugin
+plugins {
+    id 'com.gradleup.shadow'
+}
+
+dependencies {
+    // Inherit the shared core module
+    implementation project(':stuff-core')
+
+    // Paper API (provided at runtime by the server)
+    compileOnly 'io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT'
+
+    // Okaeri Bukkit serializer (shaded, extends the core snakeyaml configurer)
+    implementation 'eu.okaeri:okaeri-configs-yaml-bukkit:5.0.13'
+    implementation 'eu.okaeri:okaeri-configs-serdes-bukkit:5.0.13'
+
+    // bStats (shaded)
+    implementation 'org.bstats:bstats-bukkit:3.0.2'
+}
+
+shadowJar {
+    archiveBaseName.set('StuffPlus-Paper')
+    archiveClassifier.set('')
+
+    // Relocate shaded dependencies to prevent conflicts
+    relocate 'eu.okaeri', 'me.ayosynk.stuff.libs.okaeri'
+    relocate 'com.zaxxer.hikari', 'me.ayosynk.stuff.libs.hikari'
+    relocate 'org.bstats', 'me.ayosynk.stuff.libs.bstats'
+    relocate 'org.h2', 'me.ayosynk.stuff.libs.h2'
+    relocate 'org.xerial', 'me.ayosynk.stuff.libs.xerial'
+
+    // Exclude SLF4J — Paper provides it
+    exclude 'org/slf4j/**'
+}
+
+build {
+    dependsOn shadowJar
+}
