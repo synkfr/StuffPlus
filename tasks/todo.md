@@ -109,6 +109,21 @@
   - [x] Dynamically register `/stuffimport` executor and tab suggestions, and declare the permission node in `paper-plugin.yml`
   - [x] Rebuild and verify shadow JAR builds cleanly
 
+- [x] **Phase 18: Git Commits Partitioning**
+  - [x] Stage and commit multi-module Gradle project structure
+  - [x] Stage and commit StuffPlatform interface
+  - [x] Stage and commit migrated core models and utilities
+  - [x] Stage and commit migrated core configurations
+  - [x] Stage and commit migrated DatabaseManager
+  - [x] Stage and commit migrated migration framework
+  - [x] Stage and commit stuff-paper module commands, listeners, and resources
+  - [x] Stage and commit stuff-velocity module core classes
+  - [x] Stage and commit bStats integration for stuff-velocity
+  - [x] Stage and commit GitHub Actions workflow update
+  - [x] Stage and commit README documentation update
+  - [x] Stage and commit VitePress pages updates
+  - [x] Verify git log has 10+ clean and distinct commits
+
 ## Review & Verification Results
 
 ### 1. Compiles and Shading Integrity
@@ -133,4 +148,9 @@
 ### 4. General Framework Stability
 - Fully compatible with Folia's multi-threaded region-threading context.
 - Zero main-thread blocking operations. All DB transactions, UUID resolves, and external logging actions execute on asynchronous execution pools or regional task loops.
+
+### 5. Phase 18: Git Commits Partitioning
+- Organized the multi-module project changes into 12 granular, distinct, and logical Git commits following Conventional Commits.
+- Verified commit progression with `git log` and ensured the workspace builds successfully.
+
 
