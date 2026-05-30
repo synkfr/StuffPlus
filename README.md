@@ -72,6 +72,11 @@ By utilizing regional entity schedulers, thread-safe packet delivery pipelines, 
 | `/gms` | Switch to survival mode. | `/gms [player]` | `stuff.gms` |
 | `/gmsp` | Switch to spectator mode. | `/gmsp [player]` | `stuff.gmsp` |
 | `/gma` | Switch to adventure mode. | `/gma [player]` | `stuff.gma` |
+| `/history` | View complete punishment logs (active/inactive) for players. | `/history <player>` | `stuff.history` |
+| `/staffhistory` | View all punishments issued by a staff member. | `/staffhistory <staff>` | `stuff.staffhistory` |
+| `/staffrollback` | Rollback all active punishments placed by a staff member. | `/staffrollback <staff> [confirm]` | `stuff.staffrollback` |
+| `/stuffallow` | Exempt a player/UUID from active IP bans. | `/stuffallow <player> [remove]` | `stuff.stuffallow` |
+| `/stuffimport` | Import punishments from other plugins (Vanilla, Essentials, LiteBans, etc). | `/stuffimport <source> [params...]` | `stuff.import` |
 
 > **Admin Wildcard**: The permission node `stuff.admin` grants access to all capabilities of the plugin by default.
 > **Bypass Node**: Players with the permission `stuff.vanish.see` can see vanished players in-game, in tab lists, and in commands.
@@ -101,6 +106,27 @@ vanish-silent-container-clicks: true
 vanish-ignore-pressure-plates: true
 vanish-disable-mob-targeting: true
 vanish-disable-item-pickup: true
+
+# Warning escalation ladder settings
+warning-ladder-enabled: true
+
+# Actions to run when a player reaches a specific number of active warnings
+warning-ladder-actions:
+  1: "tempmute {player} 1h [Warning Ladder] First warning"
+  2: "tempmute {player} 12h [Warning Ladder] Second warning"
+  3: "tempban {player} 3d [Warning Ladder] Reached 3 warnings"
+  4: "ban {player} [Warning Ladder] Reached 4 warnings"
+
+# Discord Webhook logging settings
+discord-webhook-enabled: false
+discord-webhook-url: ""
+discord-webhook-username: "Stuff+ Moderation"
+discord-webhook-avatar-url: "https://i.imgur.com/8Qp49X0.png"
+
+# Hex color codes for webhook embeds (without the #)
+discord-webhook-color-ban: "FF5555"
+discord-webhook-color-mute: "FFAA00"
+discord-webhook-color-warn: "FFFF55"
 ```
 
 ### `messages.yml`
@@ -111,6 +137,11 @@ prefix: "<color:#A0A0A0>[<color:#00E262>Stuff+<color:#A0A0A0>] "
 
 no-permission: "<color:#E20000>You do not have permission to execute this command."
 player-only: "<color:#E20000>This command can only be executed by a player."
+cannot-overwrite-punishment: "<color:#E20000>You cannot override a punishment placed by a higher-ranking staff member ({staff})."
+player-allowed: "<color:#00E262>You have allowed {player} to bypass IP bans."
+player-allowed-broadcast: "<color:#00E262>{player} has been exempted from IP bans by {sender}."
+player-unallowed: "<color:#00E262>You have removed IP ban exemption for {player}."
+player-unallowed-broadcast: "<color:#00E262>{player} is no longer exempted from IP bans."
 player-not-found: "<color:#E20000>Player '{player}' has not been found or registered."
 invalid-duration: "<color:#E20000>Invalid duration format! Use e.g. 1d, 12h, 30m or perm."
 

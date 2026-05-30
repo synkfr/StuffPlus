@@ -27,6 +27,11 @@
 | `/gms` | Sets survival gamemode shortcut. | `/gms [player]` | `stuff.gms` |
 | `/gmsp` | Sets spectator gamemode shortcut. | `/gmsp [player]` | `stuff.gmsp` |
 | `/gma` | Sets adventure gamemode shortcut. | `/gma [player]` | `stuff.gma` |
+| `/history` | Views complete historical punishment logs. | `/history <player>` | `stuff.history` |
+| `/staffhistory` | Audits punishments issued by a staff member. | `/staffhistory <staff>` | `stuff.staffhistory` |
+| `/staffrollback` | Revokes all active punishments placed by a staff member. | `/staffrollback <staff> [confirm]` | `stuff.staffrollback` |
+| `/stuffallow` | Exempts a player/UUID from active IP bans. | `/stuffallow <player> [remove]` | `stuff.stuffallow` |
+| `/stuffimport` | Imports punishments from other moderation plugins. | `/stuffimport <source> [params...]` | `stuff.import` |
 
 ---
 
@@ -34,3 +39,14 @@
 
 * **`stuff.admin`**: Grants access to all administrative capabilities and commands of `Stuff+` by default. Typically assigned to OPs and high-tier Administrators.
 * **`stuff.vanish.see`**: Allows staff to see other vanished players in the game, in tab lists, and list them in command autocompletions.
+
+---
+
+## Overwrite Hierarchy Weights
+
+`Stuff+` implements a robust Administrative Overwrite Hierarchy. Lower-ranking staff members cannot bypass, overwrite, or remove punishments issued by senior administrators.
+
+Weights are assigned using custom permission nodes:
+* **`stuff.hierarchy.weight.<number>`**: Defines the hierarchy weight of the player (e.g. `stuff.hierarchy.weight.100` for Owners, `stuff.hierarchy.weight.50` for Helpers).
+* **Console Authority**: The Server Console holds infinite authority (`Integer.MAX_VALUE`). Console-issued bans, mutes, or warnings can never be overwritten in-game by any player, regardless of rank.
+* **Database Cache**: Dynamic weights of staff members are automatically resolved and cached in the database on join, enabling offline hierarchy protection for senior staff.

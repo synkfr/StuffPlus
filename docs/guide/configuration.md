@@ -26,6 +26,27 @@ vanish-silent-container-clicks: true
 vanish-ignore-pressure-plates: true
 vanish-disable-mob-targeting: true
 vanish-disable-item-pickup: true
+
+# Warning escalation ladder settings
+warning-ladder-enabled: true
+
+# Actions to run when a player reaches a specific number of active warnings
+warning-ladder-actions:
+  1: "tempmute {player} 1h [Warning Ladder] First warning"
+  2: "tempmute {player} 12h [Warning Ladder] Second warning"
+  3: "tempban {player} 3d [Warning Ladder] Reached 3 warnings"
+  4: "ban {player} [Warning Ladder] Reached 4 warnings"
+
+# Discord Webhook logging settings
+discord-webhook-enabled: false
+discord-webhook-url: ""
+discord-webhook-username: "Stuff+ Moderation"
+discord-webhook-avatar-url: "https://i.imgur.com/8Qp49X0.png"
+
+# Hex color codes for webhook embeds (without the #)
+discord-webhook-color-ban: "FF5555"
+discord-webhook-color-mute: "FFAA00"
+discord-webhook-color-warn: "FFFF55"
 ```
 
 ### Config Mappings Explained
@@ -36,6 +57,12 @@ vanish-disable-item-pickup: true
 * **`vanish-ignore-pressure-plates`**: Toggles plate trigger suppression. Staff will not trigger physical stone, wood, gold, or iron plate interactions.
 * **`vanish-disable-mob-targeting`**: Prevents monsters and hostile entities from targeting vanished staff.
 * **`vanish-disable-item-pickup`**: Blocks vanished staff from picking up floor items to prevent accidental inventory pollution or visual reveals.
+* **`warning-ladder-enabled`**: Toggles warning escalation. If active, punishments scale automatically with player warning thresholds.
+* **`warning-ladder-actions`**: Custom commands mapping. When warning count matches the key, the mapped command is executed safely on the global scheduler.
+* **`discord-webhook-enabled`**: Enable or disable non-blocking logs to your Discord webhook channel.
+* **`discord-webhook-url`**: Your channel's secure Discord Webhook link.
+* **`discord-webhook-username` / `avatar-url`**: Customized profiles displayed in Discord embeds.
+* **`discord-webhook-color-*`**: Custom embed border hex colors for each event.
 
 ---
 
@@ -49,6 +76,11 @@ prefix: "<color:#A0A0A0>[<color:#00E262>Stuff+<color:#A0A0A0>] "
 
 no-permission: "<color:#E20000>You do not have permission to execute this command."
 player-only: "<color:#E20000>This command can only be executed by a player."
+cannot-overwrite-punishment: "<color:#E20000>You cannot override a punishment placed by a higher-ranking staff member ({staff})."
+player-allowed: "<color:#00E262>You have allowed {player} to bypass IP bans."
+player-allowed-broadcast: "<color:#00E262>{player} has been exempted from IP bans by {sender}."
+player-unallowed: "<color:#00E262>You have removed IP ban exemption for {player}."
+player-unallowed-broadcast: "<color:#00E262>{player} is no longer exempted from IP bans."
 player-not-found: "<color:#E20000>Player '{player}' has not been found or registered."
 invalid-duration: "<color:#E20000>Invalid duration format! Use e.g. 1d, 12h, 30m or perm."
 
@@ -67,3 +99,4 @@ vanish-enabled: "<color:#00E262>You are now vanished."
 vanish-disabled: "<color:#00E262>You are no longer vanished."
 vanish-action-bar: "<color:#00E262>★ YOU ARE VANISHED ★"
 ```
+
