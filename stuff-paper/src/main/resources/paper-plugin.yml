@@ -1,6 +1,6 @@
 name: Stuff
 version: 1.0.0
-main: me.ayosynk.stuff.StuffPlugin
+main: me.ayosynk.stuff.bukkit.StuffBukkitPlugin
 api-version: '1.20'
 folia-supported: true
 description: Advanced modern moderation and utility plugin with Folia support.

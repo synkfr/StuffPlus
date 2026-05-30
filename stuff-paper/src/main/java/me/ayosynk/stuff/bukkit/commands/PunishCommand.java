@@ -1,10 +1,10 @@
-package me.ayosynk.stuff.commands;
+package me.ayosynk.stuff.bukkit.commands;
 
-import me.ayosynk.stuff.StuffPlugin;
+import me.ayosynk.stuff.bukkit.StuffBukkitPlugin;
 import me.ayosynk.stuff.database.Punishment;
 import me.ayosynk.stuff.utils.DurationUtils;
-import me.ayosynk.stuff.utils.MiniMessageUtils;
-import me.ayosynk.stuff.utils.SchedulerUtils;
+import me.ayosynk.stuff.bukkit.utils.MiniMessageUtils;
+import me.ayosynk.stuff.bukkit.utils.SchedulerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -27,11 +27,11 @@ import java.util.stream.Collectors;
 
 public class PunishCommand implements CommandExecutor, TabCompleter {
 
-    private final StuffPlugin plugin;
+    private final StuffBukkitPlugin plugin;
     private static final Pattern IP_PATTERN = Pattern.compile("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    public PunishCommand(StuffPlugin plugin) {
+    public PunishCommand(StuffBukkitPlugin plugin) {
         this.plugin = plugin;
     }
 

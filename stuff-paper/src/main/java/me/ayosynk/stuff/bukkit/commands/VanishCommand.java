@@ -1,8 +1,8 @@
-package me.ayosynk.stuff.commands;
+package me.ayosynk.stuff.bukkit.commands;
 
-import me.ayosynk.stuff.StuffPlugin;
-import me.ayosynk.stuff.utils.MiniMessageUtils;
-import me.ayosynk.stuff.utils.SchedulerUtils;
+import me.ayosynk.stuff.bukkit.StuffBukkitPlugin;
+import me.ayosynk.stuff.bukkit.utils.MiniMessageUtils;
+import me.ayosynk.stuff.bukkit.utils.SchedulerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -18,9 +18,9 @@ import java.util.UUID;
 
 public class VanishCommand implements CommandExecutor, TabCompleter {
 
-    private final StuffPlugin plugin;
+    private final StuffBukkitPlugin plugin;
 
-    public VanishCommand(StuffPlugin plugin) {
+    public VanishCommand(StuffBukkitPlugin plugin) {
         this.plugin = plugin;
     }
 

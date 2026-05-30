@@ -1,8 +1,8 @@
-package me.ayosynk.stuff.commands;
+package me.ayosynk.stuff.bukkit.commands;
 
-import me.ayosynk.stuff.StuffPlugin;
-import me.ayosynk.stuff.utils.MiniMessageUtils;
-import me.ayosynk.stuff.utils.SchedulerUtils;
+import me.ayosynk.stuff.bukkit.StuffBukkitPlugin;
+import me.ayosynk.stuff.bukkit.utils.MiniMessageUtils;
+import me.ayosynk.stuff.bukkit.utils.SchedulerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.command.Command;
@@ -23,9 +23,9 @@ import java.util.stream.Collectors;
 
 public class MonitorCommand implements CommandExecutor, TabCompleter {
 
-    private final StuffPlugin plugin;
+    private final StuffBukkitPlugin plugin;
 
-    public MonitorCommand(StuffPlugin plugin) {
+    public MonitorCommand(StuffBukkitPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -76,7 +76,7 @@ public class MonitorCommand implements CommandExecutor, TabCompleter {
                 // Store state
                 ItemStack[] inv = staff.getInventory().getContents().clone();
                 ItemStack[] armor = staff.getInventory().getArmorContents().clone();
-                StuffPlugin.SpectatorState state = new StuffPlugin.SpectatorState(
+                StuffBukkitPlugin.SpectatorState state = new StuffBukkitPlugin.SpectatorState(
                         staff.getLocation(),
                         staff.getGameMode(),
                         inv,
@@ -122,7 +122,7 @@ public class MonitorCommand implements CommandExecutor, TabCompleter {
                                 return;
                             }
 
-                            StuffPlugin.SpectatorState currentState = plugin.getMonitorStates().get(staff.getUniqueId());
+                            StuffBukkitPlugin.SpectatorState currentState = plugin.getMonitorStates().get(staff.getUniqueId());
                             if (currentState == null) {
                                 scheduledTask.cancel();
                                 plugin.getMonitorTasks().remove(staff.getUniqueId());

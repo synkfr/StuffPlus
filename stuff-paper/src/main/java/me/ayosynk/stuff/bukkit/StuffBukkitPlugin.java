@@ -1,10 +1,11 @@
-package me.ayosynk.stuff;
+package me.ayosynk.stuff.bukkit;
 
+import me.ayosynk.stuff.StuffPlatform;
 import me.ayosynk.stuff.config.MessageConfig;
 import me.ayosynk.stuff.config.PluginConfig;
 import me.ayosynk.stuff.database.DatabaseManager;
-import me.ayosynk.stuff.utils.MiniMessageUtils;
-import me.ayosynk.stuff.utils.SchedulerUtils;
+import me.ayosynk.stuff.bukkit.utils.MiniMessageUtils;
+import me.ayosynk.stuff.bukkit.utils.SchedulerUtils;
 import eu.okaeri.configs.ConfigManager;
 import eu.okaeri.configs.yaml.bukkit.YamlBukkitConfigurer;
 import org.bukkit.Bukkit;
@@ -19,16 +20,15 @@ import org.bstats.bukkit.Metrics;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
-public final class StuffPlugin extends JavaPlugin {
+public final class StuffBukkitPlugin extends JavaPlugin implements StuffPlatform {
 
     private PluginConfig pluginConfig;
     private MessageConfig messageConfig;
@@ -38,10 +38,10 @@ public final class StuffPlugin extends JavaPlugin {
     // Cache of all players ever seen (for tab completion)
     private final Set<String> registeredNames = ConcurrentHashMap.newKeySet();
 
-    // Vanish State (Persistent by UUID, optional database backup can be done, but in-memory with reload support is standard. Let's make it robust)
+    // Vanish State
     private final Set<UUID> vanishedPlayers = ConcurrentHashMap.newKeySet();
 
-    // Monitor State: Staff UUID -> SpectatorState (stores original gamemode, location, and inventory)
+    // Monitor State: Staff UUID -> SpectatorState
     private final Map<UUID, SpectatorState> monitorStates = new ConcurrentHashMap<>();
 
     // Monitor Follow Tasks under Folia
@@ -117,12 +117,12 @@ public final class StuffPlugin extends JavaPlugin {
             getLogger().warning("Could not initialize bStats metrics: " + e.getMessage());
         }
 
-        getLogger().info("Stuff+ Plugin has been successfully enabled on Folia/Paper!");
+        getLogger().info("Stuff+ Bukkit Plugin has been successfully enabled on Folia/Paper!");
     }
 
     @Override
     public void onDisable() {
-        // Restore all monitored players before shutdown to prevent them from getting stuck!
+        // Restore all monitored players before shutdown
         for (UUID uuid : monitorStates.keySet()) {
             Player staff = Bukkit.getPlayer(uuid);
             if (staff != null) {
@@ -142,68 +142,91 @@ public final class StuffPlugin extends JavaPlugin {
             databaseManager.shutdown();
         }
 
-        getLogger().info("Stuff+ Plugin has been disabled.");
+        getLogger().info("Stuff+ Bukkit Plugin has been disabled.");
     }
 
+    // ==========================================
+    // StuffPlatform Implementation
+    // ==========================================
+
+    @Override
+    public PluginConfig getPluginConfig() { return pluginConfig; }
+
+    @Override
+    public MessageConfig getMessageConfig() { return messageConfig; }
+
+    @Override
+    public DatabaseManager getDatabaseManager() { return databaseManager; }
+
+    @Override
+    public void dispatchConsoleCommand(String command) {
+        SchedulerUtils.runGlobal(this, () ->
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command)
+        );
+    }
+
+    // ==========================================
+    // Registration
+    // ==========================================
+
     private void registerListeners() {
-        // We will write and register PlayerListener and VanishListener later
-        getServer().getPluginManager().registerEvents(new me.ayosynk.stuff.listeners.PlayerListener(this), this);
-        getServer().getPluginManager().registerEvents(new me.ayosynk.stuff.listeners.VanishListener(this), this);
+        getServer().getPluginManager().registerEvents(new me.ayosynk.stuff.bukkit.listeners.PlayerListener(this), this);
+        getServer().getPluginManager().registerEvents(new me.ayosynk.stuff.bukkit.listeners.VanishListener(this), this);
     }
 
     private void registerCommands() {
         org.bukkit.command.CommandMap commandMap = Bukkit.getCommandMap();
-        
-        me.ayosynk.stuff.commands.PunishCommand punishCommand = new me.ayosynk.stuff.commands.PunishCommand(this);
+
+        me.ayosynk.stuff.bukkit.commands.PunishCommand punishCommand = new me.ayosynk.stuff.bukkit.commands.PunishCommand(this);
         registerDynamic(commandMap, "mute", "Mutes a player.", "/mute <player> [reason]", Collections.singletonList("silence"), punishCommand, punishCommand);
         registerDynamic(commandMap, "tempmute", "Temporarily mutes a player.", "/tempmute <player> <time> [reason]", Collections.emptyList(), punishCommand, punishCommand);
         registerDynamic(commandMap, "unmute", "Unmutes a player.", "/unmute <player>", Collections.emptyList(), punishCommand, punishCommand);
-        
+
         registerDynamic(commandMap, "ban", "Bans a player.", "/ban <player> [reason]", Collections.emptyList(), punishCommand, punishCommand);
         registerDynamic(commandMap, "tempban", "Temporarily bans a player.", "/tempban <player> <time> [reason]", Collections.emptyList(), punishCommand, punishCommand);
         registerDynamic(commandMap, "unban", "Unbans a player.", "/unban <player>", Collections.emptyList(), punishCommand, punishCommand);
-        
+
         registerDynamic(commandMap, "ip-ban", "IP-bans a player.", "/ip-ban <player> [reason]", Arrays.asList("ipban", "banip"), punishCommand, punishCommand);
         registerDynamic(commandMap, "tempip-ban", "Temporarily IP-bans a player.", "/tempip-ban <player> <time> [reason]", Arrays.asList("tempipban", "tempbanip"), punishCommand, punishCommand);
         registerDynamic(commandMap, "unip-ban", "Unbans an IP address.", "/unip-ban <player/IP>", Arrays.asList("unipban", "unbanip"), punishCommand, punishCommand);
-        
+
         registerDynamic(commandMap, "warn", "Warns a player.", "/warn <player> [reason]", Collections.emptyList(), punishCommand, punishCommand);
         registerDynamic(commandMap, "warns", "View or clear warnings.", "/warns <player> [clear/list]", Collections.emptyList(), punishCommand, punishCommand);
 
-        me.ayosynk.stuff.commands.VanishCommand vanishCommand = new me.ayosynk.stuff.commands.VanishCommand(this);
+        me.ayosynk.stuff.bukkit.commands.VanishCommand vanishCommand = new me.ayosynk.stuff.bukkit.commands.VanishCommand(this);
         registerDynamic(commandMap, "vanish", "Toggle vanish mode.", "/vanish", Arrays.asList("v", "vmode"), vanishCommand, vanishCommand);
 
-        me.ayosynk.stuff.commands.MonitorCommand monitorCommand = new me.ayosynk.stuff.commands.MonitorCommand(this);
+        me.ayosynk.stuff.bukkit.commands.MonitorCommand monitorCommand = new me.ayosynk.stuff.bukkit.commands.MonitorCommand(this);
         registerDynamic(commandMap, "monitor", "Spectate and follow a player.", "/monitor <player/leave>", Arrays.asList("spectate", "mon"), monitorCommand, monitorCommand);
 
-        me.ayosynk.stuff.commands.InvseeCommand invseeCommand = new me.ayosynk.stuff.commands.InvseeCommand(this);
+        me.ayosynk.stuff.bukkit.commands.InvseeCommand invseeCommand = new me.ayosynk.stuff.bukkit.commands.InvseeCommand(this);
         registerDynamic(commandMap, "invsee", "Inspect a player's inventory live.", "/invsee <player>", Arrays.asList("inspect", "inv"), invseeCommand, invseeCommand);
 
         // Gamemode shortcuts and Fly commands
-        me.ayosynk.stuff.commands.GamemodeCommand gmCommand = new me.ayosynk.stuff.commands.GamemodeCommand(this);
+        me.ayosynk.stuff.bukkit.commands.GamemodeCommand gmCommand = new me.ayosynk.stuff.bukkit.commands.GamemodeCommand(this);
         registerDynamic(commandMap, "gmc", "Switch to creative mode.", "/gmc [player]", Collections.emptyList(), gmCommand, gmCommand);
         registerDynamic(commandMap, "gms", "Switch to survival mode.", "/gms [player]", Collections.emptyList(), gmCommand, gmCommand);
         registerDynamic(commandMap, "gmsp", "Switch to spectator mode.", "/gmsp [player]", Collections.emptyList(), gmCommand, gmCommand);
         registerDynamic(commandMap, "gma", "Switch to adventure mode.", "/gma [player]", Collections.emptyList(), gmCommand, gmCommand);
 
-        me.ayosynk.stuff.commands.FlyCommand flyCommand = new me.ayosynk.stuff.commands.FlyCommand(this);
+        me.ayosynk.stuff.bukkit.commands.FlyCommand flyCommand = new me.ayosynk.stuff.bukkit.commands.FlyCommand(this);
         registerDynamic(commandMap, "fly", "Toggle player fly mode.", "/fly [player]", Collections.singletonList("flight"), flyCommand, flyCommand);
 
-        me.ayosynk.stuff.commands.HistoryCommand historyCommand = new me.ayosynk.stuff.commands.HistoryCommand(this);
+        me.ayosynk.stuff.bukkit.commands.HistoryCommand historyCommand = new me.ayosynk.stuff.bukkit.commands.HistoryCommand(this);
         registerDynamic(commandMap, "history", "View punishment history for players.", "/history <player>", Arrays.asList("punishhistory", "historylog"), historyCommand, historyCommand);
         registerDynamic(commandMap, "staffhistory", "View punishments issued by staff members.", "/staffhistory <staff>", Collections.emptyList(), historyCommand, historyCommand);
 
-        me.ayosynk.stuff.commands.StaffRollbackCommand rollbackCommand = new me.ayosynk.stuff.commands.StaffRollbackCommand(this);
+        me.ayosynk.stuff.bukkit.commands.StaffRollbackCommand rollbackCommand = new me.ayosynk.stuff.bukkit.commands.StaffRollbackCommand(this);
         registerDynamic(commandMap, "staffrollback", "Rollback all punishments issued by staff.", "/staffrollback <staff> [confirm]", Arrays.asList("rollbackstaff", "rollback"), rollbackCommand, rollbackCommand);
 
         registerDynamic(commandMap, "stuffallow", "Exempt a player from IP bans.", "/stuffallow <player> [remove]", Arrays.asList("allowip", "allow"), punishCommand, punishCommand);
 
-        me.ayosynk.stuff.commands.ImportCommand importCommand = new me.ayosynk.stuff.commands.ImportCommand(this, this.migrationManager);
+        me.ayosynk.stuff.bukkit.commands.ImportCommand importCommand = new me.ayosynk.stuff.bukkit.commands.ImportCommand(this, this.migrationManager);
         registerDynamic(commandMap, "stuffimport", "Import punishments from other plugins.", "/stuffimport <source> [params...]", Arrays.asList("migrate", "stuffmigrate"), importCommand, importCommand);
     }
 
     private void registerDynamic(org.bukkit.command.CommandMap commandMap, String name, String description, String usage, List<String> aliases, org.bukkit.command.CommandExecutor executor, org.bukkit.command.TabCompleter tabCompleter) {
-        me.ayosynk.stuff.commands.DynamicCommand command = new me.ayosynk.stuff.commands.DynamicCommand(name, description, usage, aliases, executor, tabCompleter);
+        me.ayosynk.stuff.bukkit.commands.DynamicCommand command = new me.ayosynk.stuff.bukkit.commands.DynamicCommand(name, description, usage, aliases, executor, tabCompleter);
         command.setPermission("stuff." + name.replace("-", ""));
         command.setPermissionMessage(messageConfig.getNoPermission());
         commandMap.register("stuff", command);
@@ -214,17 +237,13 @@ public final class StuffPlugin extends JavaPlugin {
             for (UUID uuid : vanishedPlayers) {
                 Player player = Bukkit.getPlayer(uuid);
                 if (player != null && player.isOnline()) {
-                    // Send vanish action bar message
                     player.sendActionBar(MiniMessageUtils.parse(messageConfig.getVanishActionBar()));
                 }
             }
         }, 1, 1, TimeUnit.SECONDS);
     }
 
-    // Config Getters
-    public PluginConfig getPluginConfig() { return pluginConfig; }
-    public MessageConfig getMessageConfig() { return messageConfig; }
-    public DatabaseManager getDatabaseManager() { return databaseManager; }
+    // Getters
     public me.ayosynk.stuff.migration.MigrationManager getMigrationManager() { return migrationManager; }
 
     // Cache operations
@@ -290,7 +309,7 @@ public final class StuffPlugin extends JavaPlugin {
         private Location lastStaffLocation;
         private Location lastTargetLocation;
         private boolean teleporting = false;
-        private int followCooldown = 0; // Cycles to wait between follow teleports
+        private int followCooldown = 0;
 
         public SpectatorState(Location originalLocation, GameMode originalGameMode, ItemStack[] inventoryContents, ItemStack[] armorContents, UUID targetUuid) {
             this.originalLocation = originalLocation;
@@ -305,31 +324,22 @@ public final class StuffPlugin extends JavaPlugin {
         public ItemStack[] getInventoryContents() { return inventoryContents; }
         public ItemStack[] getArmorContents() { return armorContents; }
         public UUID getTargetUuid() { return targetUuid; }
-
         public Vector getRelativeOffset() { return relativeOffset; }
         public void setRelativeOffset(Vector relativeOffset) { this.relativeOffset = relativeOffset; }
-
         public Location getLastStaffLocation() { return lastStaffLocation; }
         public void setLastStaffLocation(Location lastStaffLocation) { this.lastStaffLocation = lastStaffLocation; }
-
         public Location getLastTargetLocation() { return lastTargetLocation; }
         public void setLastTargetLocation(Location lastTargetLocation) { this.lastTargetLocation = lastTargetLocation; }
-
         public boolean isTeleporting() { return teleporting; }
         public void setTeleporting(boolean teleporting) { this.teleporting = teleporting; }
-
-        /** Decrement the follow cooldown by 1 each task cycle (called every 4 ticks). */
         public void tickFollowCooldown() { if (followCooldown > 0) followCooldown--; }
-        /** Reset the follow cooldown after issuing a follow teleport. 2 cycles × 4 ticks = 400ms gap. */
         public void resetFollowCooldown() { this.followCooldown = 2; }
-        /** True when enough time has elapsed since the last follow teleport. */
         public boolean isFollowReady() { return followCooldown <= 0; }
     }
 
     public void restoreSpectatorState(Player staff, boolean asyncSafe) {
         SpectatorState state = monitorStates.remove(staff.getUniqueId());
-        
-        // Remove and cancel active spectating task if present
+
         io.papermc.paper.threadedregions.scheduler.ScheduledTask task = monitorTasks.remove(staff.getUniqueId());
         if (task != null) {
             task.cancel();

@@ -1,8 +1,8 @@
-package me.ayosynk.stuff.commands;
+package me.ayosynk.stuff.bukkit.commands;
 
-import me.ayosynk.stuff.StuffPlugin;
-import me.ayosynk.stuff.utils.MiniMessageUtils;
-import me.ayosynk.stuff.utils.SchedulerUtils;
+import me.ayosynk.stuff.bukkit.StuffBukkitPlugin;
+import me.ayosynk.stuff.bukkit.utils.MiniMessageUtils;
+import me.ayosynk.stuff.bukkit.utils.SchedulerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -24,9 +24,9 @@ import java.util.stream.Collectors;
 
 public class InvseeCommand implements CommandExecutor, TabCompleter {
 
-    private final StuffPlugin plugin;
+    private final StuffBukkitPlugin plugin;
 
-    public InvseeCommand(StuffPlugin plugin) {
+    public InvseeCommand(StuffBukkitPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -69,7 +69,7 @@ public class InvseeCommand implements CommandExecutor, TabCompleter {
 
         updateInvseeContents(inv, target);
 
-        plugin.getInvseeSessions().put(staff.getUniqueId(), new StuffPlugin.InvseeSession(staff.getUniqueId(), target.getUniqueId(), inv));
+        plugin.getInvseeSessions().put(staff.getUniqueId(), new StuffBukkitPlugin.InvseeSession(staff.getUniqueId(), target.getUniqueId(), inv));
 
         staff.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getInvseeOpened().replace("{player}", target.getName())));
         staff.openInventory(inv);

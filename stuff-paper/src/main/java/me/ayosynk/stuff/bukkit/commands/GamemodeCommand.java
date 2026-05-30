@@ -1,9 +1,10 @@
-package me.ayosynk.stuff.commands;
+package me.ayosynk.stuff.bukkit.commands;
 
-import me.ayosynk.stuff.StuffPlugin;
-import me.ayosynk.stuff.utils.MiniMessageUtils;
-import me.ayosynk.stuff.utils.SchedulerUtils;
+import me.ayosynk.stuff.bukkit.StuffBukkitPlugin;
+import me.ayosynk.stuff.bukkit.utils.MiniMessageUtils;
+import me.ayosynk.stuff.bukkit.utils.SchedulerUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -16,16 +17,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class FlyCommand implements CommandExecutor, TabCompleter {
+public class GamemodeCommand implements CommandExecutor, TabCompleter {
 
-    private final StuffPlugin plugin;
+    private final StuffBukkitPlugin plugin;
 
-    public FlyCommand(StuffPlugin plugin) {
+    public GamemodeCommand(StuffBukkitPlugin plugin) {
         this.plugin = plugin;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
+        GameMode gm = resolveGameMode(cmd.getName().toLowerCase());
+        if (gm == null) return true;
+
         if (args.length == 0) {
             if (!(sender instanceof Player)) {
                 sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getPlayerOnly()));
@@ -33,9 +37,9 @@ public class FlyCommand implements CommandExecutor, TabCompleter {
             }
 
             Player player = (Player) sender;
-            SchedulerUtils.runEntity(plugin, player, () -> toggleFly(player, player));
+            SchedulerUtils.runEntity(plugin, player, () -> setGameMode(player, player, gm));
         } else {
-            if (!sender.hasPermission("stuff.fly.others")) {
+            if (!sender.hasPermission("stuff.gamemode.others")) {
                 sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getNoPermission()));
                 return true;
             }
@@ -48,28 +52,35 @@ public class FlyCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
 
-            SchedulerUtils.runEntity(plugin, target, () -> toggleFly(sender, target));
+            SchedulerUtils.runEntity(plugin, target, () -> setGameMode(sender, target, gm));
         }
         return true;
     }
 
-    private void toggleFly(CommandSender sender, Player target) {
-        boolean fly = !target.getAllowFlight();
-        target.setAllowFlight(fly);
-        target.setFlying(fly);
+    private GameMode resolveGameMode(String cmdName) {
+        switch (cmdName) {
+            case "gmc": return GameMode.CREATIVE;
+            case "gms": return GameMode.SURVIVAL;
+            case "gmsp": return GameMode.SPECTATOR;
+            case "gma": return GameMode.ADVENTURE;
+            default: return null;
+        }
+    }
 
-        String state = fly ? "<color:#00E262>enabled" : "<color:#E20000>disabled";
-        
-        target.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + "<color:#A0A0A0>Flight mode has been " + state + "<color:#A0A0A0>."));
+    private void setGameMode(CommandSender sender, Player target, GameMode gm) {
+        target.setGameMode(gm);
+        String modeName = gm.name().toLowerCase();
+
+        target.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + "<color:#A0A0A0>Your game mode has been set to <color:#00E262>" + modeName + "<color:#A0A0A0>."));
         
         if (!(sender instanceof Player) || !((Player) sender).getUniqueId().equals(target.getUniqueId())) {
-            sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + "<color:#A0A0A0>Flight mode " + state + "<color:#A0A0A0> for <color:#00E262>" + target.getName() + "<color:#A0A0A0>."));
+            sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + "<color:#A0A0A0>Set <color:#00E262>" + target.getName() + "<color:#A0A0A0>'s game mode to <color:#00E262>" + modeName + "<color:#A0A0A0>."));
         }
     }
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String alias, @NotNull String[] args) {
-        if (args.length == 1 && sender.hasPermission("stuff.fly.others")) {
+        if (args.length == 1 && sender.hasPermission("stuff.gamemode.others")) {
             String input = args[0].toLowerCase();
             return plugin.getVisibleOnlinePlayers(sender).stream()
                     .map(Player::getName)

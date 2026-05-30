@@ -1,12 +1,12 @@
-package me.ayosynk.stuff.listeners;
+package me.ayosynk.stuff.bukkit.listeners;
 
-import me.ayosynk.stuff.StuffPlugin;
-import me.ayosynk.stuff.commands.InvseeCommand;
-import me.ayosynk.stuff.commands.InvseeHolder;
+import me.ayosynk.stuff.bukkit.StuffBukkitPlugin;
+import me.ayosynk.stuff.bukkit.commands.InvseeCommand;
+import me.ayosynk.stuff.bukkit.commands.InvseeHolder;
 import me.ayosynk.stuff.database.Punishment;
 import me.ayosynk.stuff.utils.DurationUtils;
-import me.ayosynk.stuff.utils.MiniMessageUtils;
-import me.ayosynk.stuff.utils.SchedulerUtils;
+import me.ayosynk.stuff.bukkit.utils.MiniMessageUtils;
+import me.ayosynk.stuff.bukkit.utils.SchedulerUtils;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -36,9 +36,9 @@ import me.ayosynk.stuff.database.DatabaseManager;
 
 public class PlayerListener implements Listener {
 
-    private final StuffPlugin plugin;
+    private final StuffBukkitPlugin plugin;
 
-    public PlayerListener(StuffPlugin plugin) {
+    public PlayerListener(StuffBukkitPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -356,7 +356,7 @@ public class PlayerListener implements Listener {
      * Thread-safe under Folia: iterates over registered sessions instead of accessing other players' open inventories directly.
      */
     private void refreshTargetViewers(Player target) {
-        for (StuffPlugin.InvseeSession session : plugin.getInvseeSessions().values()) {
+        for (StuffBukkitPlugin.InvseeSession session : plugin.getInvseeSessions().values()) {
             if (session.getTargetUuid().equals(target.getUniqueId())) {
                 Player staff = Bukkit.getPlayer(session.getStaffUuid());
                 if (staff != null && staff.isOnline()) {
@@ -430,7 +430,7 @@ public class PlayerListener implements Listener {
 
         // 3. If a monitored target quits, restore any staff monitoring them
         for (UUID staffUuid : plugin.getMonitorStates().keySet()) {
-            StuffPlugin.SpectatorState state = plugin.getMonitorStates().get(staffUuid);
+            StuffBukkitPlugin.SpectatorState state = plugin.getMonitorStates().get(staffUuid);
             if (state != null && state.getTargetUuid().equals(uuid)) {
                 Player staff = Bukkit.getPlayer(staffUuid);
                 if (staff != null && staff.isOnline()) {
@@ -441,7 +441,7 @@ public class PlayerListener implements Listener {
         }
 
         // 4. If target of invsee quits, close open GUIs for all viewing staff
-        for (StuffPlugin.InvseeSession session : plugin.getInvseeSessions().values()) {
+        for (StuffBukkitPlugin.InvseeSession session : plugin.getInvseeSessions().values()) {
             if (session.getTargetUuid().equals(uuid)) {
                 Player staff = Bukkit.getPlayer(session.getStaffUuid());
                 if (staff != null && staff.isOnline()) {

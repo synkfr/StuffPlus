@@ -1,4 +1,4 @@
-package me.ayosynk.stuff.utils;
+package me.ayosynk.stuff.bukkit.utils;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;

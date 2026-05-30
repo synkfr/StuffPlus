@@ -1,9 +1,9 @@
-package me.ayosynk.stuff.commands;
+package me.ayosynk.stuff.bukkit.commands;
 
-import me.ayosynk.stuff.StuffPlugin;
+import me.ayosynk.stuff.bukkit.StuffBukkitPlugin;
 import me.ayosynk.stuff.migration.MigrationManager;
 import me.ayosynk.stuff.migration.MigrationSource;
-import me.ayosynk.stuff.utils.MiniMessageUtils;
+import me.ayosynk.stuff.bukkit.utils.MiniMessageUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -20,11 +20,11 @@ import java.util.stream.Collectors;
 
 public class ImportCommand implements CommandExecutor, TabCompleter {
 
-    private final StuffPlugin plugin;
+    private final StuffBukkitPlugin plugin;
     private final MigrationManager migrationManager;
     private final AtomicBoolean migrating = new AtomicBoolean(false);
 
-    public ImportCommand(StuffPlugin plugin, MigrationManager migrationManager) {
+    public ImportCommand(StuffBukkitPlugin plugin, MigrationManager migrationManager) {
         this.plugin = plugin;
         this.migrationManager = migrationManager;
     }
@@ -56,7 +56,7 @@ public class ImportCommand implements CommandExecutor, TabCompleter {
 
         sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + "<color:#A0A0A0>Starting asynchronous import from <color:#00E262>" + source.getName() + "<color:#A0A0A0>... Please wait..."));
 
-        source.migrate(plugin, sender, args).thenAccept(count -> {
+        source.migrate(plugin, msg -> sender.sendMessage(MiniMessageUtils.parse(msg)), args).thenAccept(count -> {
             migrating.set(false);
             sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + "<gradient:#00E262:#00FF7F>Successfully imported " + count + " punishments from " + source.getName() + "!</gradient>"));
         }).exceptionally(ex -> {
