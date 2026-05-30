@@ -64,4 +64,11 @@
   - [x] Rebuild and verify compilation success
   - [x] Document the Folia block-state read safety pattern in `tasks/lessons.md`
 
+- [x] **Phase 12: Premium Moderation Feature Parity & Dynamic Command Registry**
+  - [x] Perform exhaustive gap analysis between Stuff+ and advanced moderation suites
+  - [x] Create comprehensive implementation plan mapping premium feature gaps
+  - [x] Import missing collections and concurrency structures to `PlayerListener.java`
+  - [x] Register `/history`, `/staffhistory`, and `/staffrollback` commands dynamically in `StuffPlugin.java`
+  - [x] Compile and package a clean 456KB shaded shadow JAR containing HikariCP, Okaeri, and bStats dependencies
+
 
