@@ -83,4 +83,12 @@
   - [x] Hook webhook dispatches into `/mute`, `/ban`, `/ip-ban`, and `/warn` inside `PunishCommand.java`
   - [x] Compile and verify clean shaded shadow JAR compilation without errors
 
+- [x] **Phase 15: Punishment Overwrite Hierarchy**
+  - [x] Add cannot-overwrite-punishment error message to `MessageConfig.java`
+  - [x] Add non-destructive `weight` column database migration and update `savePlayer` in `DatabaseManager.java`
+  - [x] Query and cache dynamic permission weights on `PlayerJoinEvent` in `PlayerListener.java`
+  - [x] Implement `getHierarchyWeight` and asynchronous `checkHierarchy` in `PunishCommand.java`
+  - [x] Weave overwrite checks inside `/mute`, `/tempmute`, `/unmute`, `/ban`, `/tempban`, `/unban`, `/ip-ban`, `/tempip-ban`, `/unip-ban`, and `/warns clear`
+  - [x] Compile and package updated shadow JAR with full administrative protection
+
 
