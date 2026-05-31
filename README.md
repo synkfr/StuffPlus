@@ -1,5 +1,4 @@
-![Staff](https://cdn.modrinth.com/data/cached_images/3d527e1c3549243fb7545c033e4c0106849f1849.png)
-
+![Staff+](https://cdn.modrinth.com/data/cached_images/32b79bdcbe3a506acc52309505cfc6ccde908849.png)
 
 # Staff+
 
@@ -44,21 +43,25 @@ Both editions share the same database, configs, and migration system — deploy 
 ## Features
 
 ### Cross-Platform Core
+
 * **Shared Database**: Both Paper and Velocity editions read and write to the same punishment database (SQLite or MySQL), enabling seamless network-wide moderation.
 * **Shared Configs**: `config.yml` and `messages.yml` use identical formats on both platforms via the Okaeri configuration framework.
 * **Unified Migration Engine**: Import punishments from 7+ plugins on either platform.
 
 ### Folia Safety (Paper Edition)
+
 * **Asynchronous Lifecycles**: All commands, database transactions, and packet actions run on Folia-compliant regional or asynchronous schedulers.
 * **Folia Teleportation Safety**: Standard teleports are replaced with safe, non-blocking `teleportAsync` futures, completely preventing thread crashes.
 * **Isolated Packet Loops**: Visually toggling features (like Vanish hide/show packets) are scheduled on each recipient's specific regional thread, guaranteeing thread-safety.
 
 ### Proxy Gateway Enforcement (Velocity Edition)
+
 * **Pre-Login Ban Check**: Intercepts login attempts at the proxy level and rejects banned players before they reach any backend server.
 * **Network-Wide Mute Filter**: Blocks chat messages from muted players across all connected servers.
 * **IP-Ban Gateway**: Enforces IP bans at the proxy gateway, preventing banned IPs from connecting to any server in the network.
 
 ### Vanish (Paper Only)
+
 * **Total Invisibility**: Completely removes the player from the online count, player ping lists, tab completions, and visible lists.
 * **Physical Interaction Bypass**: Vanished staff bypass physical pressure plates and tripwire triggers entirely.
 * **Silent Containers**: Allows opening chest, furnace, and barrel interfaces silently without triggering container animations or audio.
@@ -66,6 +69,7 @@ Both editions share the same database, configs, and migration system — deploy 
 * **Visual Action Bar Indicator**: Real-time HUD showing vanished status via safe asynchronous repeating tasks.
 
 ### Moderation (Both Platforms)
+
 * **Comprehensive Actions**: Integrated `/ban`, `/tempban`, `/ip-ban`, `/tempip-ban`, `/mute`, `/tempmute`, and `/warn`.
 * **Warning Profiles**: Track individual warning logs via `/warns <player> [list/clear]`.
 * **Dynamic Time Parsing**: Sophisticated time parser supporting complex units (e.g. `1d`, `12h`, `45m`) and infinite duration mappings (`perm`).
@@ -78,6 +82,7 @@ Both editions share the same database, configs, and migration system — deploy 
 * **IP-Ban Exemption Bypass**: Whitelist specific accounts (`/staffallow`) to connect and bypass active IP-bans without lifting the IP ban itself for other accounts sharing the IP.
 
 ### Punishment Importer & Migration (Both Platforms)
+
 * **7 Supported Platforms**: Seamlessly import mutes, bans, warnings, and IP bans from:
   * **Vanilla Minecraft**: Direct imports from `banned-players.json` and `banned-ips.json` in the server root.
   * **Essentials / EssentialsX**: Automated scans of mutes and bans in user profiles under `plugins/Essentials/userdata/*.yml`.
@@ -91,12 +96,14 @@ Both editions share the same database, configs, and migration system — deploy 
 * **Non-Blocking Futures**: Runs connection setups, configuration decodes, and database commits fully asynchronously on non-blocking thread pools.
 
 ### Spectator Follow (Paper Only)
+
 * **Cinematic Camera Tracking**: Teleports staff in spectator mode to follow the target seamlessly.
 * **Velocity-Predicted Follow**: Computes target movements and velocity vectors (`target.getVelocity()`) to position the camera slightly ahead of the target, eliminating stutter and rubber-banding.
 * **Throttled Teleports**: Auto-updates run at a throttled 4-tick (200ms) interval with a 400ms cooldown, giving client-side predicted movements and Paper's async teleportation futures time to fully resolve.
 * **Configurable Boundary Tether**: Allows staff to orbit or move freely within a 10-block radius. Going beyond the boundary gently tethers the camera back into offset.
 
 ### Inventory Inspector (Paper Only)
+
 * **54-Slot Live GUI**: View and edit target players' main inventories (0-35), armor slots (helmet, chestplate, leggings, boots), off-hand items, and stats.
 * **Live Stats & Shortcuts**:
   * **Golden Apple**: Displays health, food levels, and experience dynamically.
@@ -105,6 +112,7 @@ Both editions share the same database, configs, and migration system — deploy 
 * **Unparalleled Folia Safety**: Completely avoids asynchronous block-state reads (which crash under Folia when querying `.getOpenInventory().getTopInventory().getHolder()` on block-based inventories in other regions). Instead, it implements a thread-safe custom session registry that cleanly tracks active inspect views and propagates updates regionally.
 
 ### Shortcuts (Paper Only)
+
 * **Instant Gamemode Shifts**: Rapid commands including creative (`/gmc`), survival (`/gms`), spectator (`/gmsp`), and adventure (`/gma`).
 * **Flight Mode**: Seamless command flight toggles via `/fly`.
 
@@ -154,18 +162,21 @@ Both editions share the same database, configs, and migration system — deploy 
 ## Installation
 
 ### Paper Edition (Paper / Purpur / Folia)
+
 1. Download `StaffPlus-Paper-1.0.0.jar` from [Releases](https://github.com/synkfr/StaffPlus/releases).
 2. Place the JAR in your server's `plugins/` folder.
 3. Restart your server.
 4. Edit `plugins/Staff/config.yml` and `plugins/Staff/messages.yml` to your liking.
 
 ### Velocity Edition (Proxy)
+
 1. Download `StaffPlus-Velocity-1.0.0.jar` from [Releases](https://github.com/synkfr/StaffPlus/releases).
 2. Place the JAR in your Velocity proxy's `plugins/` folder.
 3. Restart your proxy.
 4. Edit `plugins/staffplus/config.yml` and `plugins/staffplus/messages.yml` to your liking.
 
 ### Shared Database (Network Mode)
+
 To share punishments across your entire network, configure **both** editions to use the same MySQL database:
 
 ```yaml
@@ -185,6 +196,7 @@ mysql-password: "your-password"
 The plugin uses Okaeri Config to generate, validate, and auto-update clean YAML configuration structures. Both platforms share identical configuration formats.
 
 ### `config.yml`
+
 ```yaml
 # Storage type: SQLITE or MYSQL
 storage-type: "sqlite"
@@ -227,7 +239,9 @@ discord-webhook-color-warn: "FFFF55"
 ```
 
 ### `messages.yml`
+
 Features full Adventure MiniMessage compatibility, enabling gorgeous native text styling, hex colors, and gradients (e.g. `<gradient:#FF5F6D:#FFC371>Text</gradient>`).
+
 ```yaml
 # Prefix for all plugin messages
 prefix: "<color:#A0A0A0>[<color:#00E262>Staff+<color:#A0A0A0>] "
@@ -265,22 +279,27 @@ vanish-action-bar: "<color:#00E262>★ YOU ARE VANISHED ★"
 Staff+ is a **multi-module Gradle project** producing two independent shaded JARs.
 
 ### Requirements
+
 * **Java 21** or higher
 * **Gradle** (installed or via wrapper)
 
 ### Build Command
+
 Compile and build both platform JARs:
+
 ```bash
 ./gradlew clean build
 ```
 
 The compiled plugins will be located at:
+
 ```
 staff-paper/build/libs/StaffPlus-Paper-1.0.0.jar    # Paper/Purpur/Folia servers
 staff-velocity/build/libs/StaffPlus-Velocity-1.0.0.jar  # Velocity proxies
 ```
 
 ### Project Structure
+
 ```
 StaffPlus/
 ├── staff-core/          # Shared platform-agnostic library
@@ -302,12 +321,14 @@ StaffPlus/
 `Staff+` implements a fully automated CI/CD pipeline via GitHub Actions to compile, validate, and distribute artifacts for **both platforms**.
 
 ### Dev Builds
+
 * **Frequency**: Built automatically on every `push` to the `master` or `main` branches.
 * **Release Target**: Published under the rolling **[dev-latest](https://github.com/synkfr/StaffPlus/releases/tag/dev-latest)** pre-release tag on GitHub.
 * **Rolling Policy**: The pipeline automatically overwrites the previous `dev-latest` tag on every build, maintaining a clean releases page.
 * **Artifacts**: Both `StaffPlus-Paper` and `StaffPlus-Velocity` JARs are published in every release.
 
 ### Stable Releases
+
 * **Frequency**: Generated whenever a semantic Git version tag matching `v*` (e.g., `v1.0.0`) is pushed to the repository.
 * **Release Target**: Published as a dedicated production release containing formal release notes and both platform-ready shaded JAR assets.
 
@@ -317,8 +338,8 @@ StaffPlus/
 
 Both editions of Staff+ integrate with [bStats](https://bstats.org/) to collect anonymous usage statistics. This helps us understand how the plugin is being used and guides future development.
 
-- **Paper Edition**: Uses `bstats-bukkit` for server-side metrics.
-- **Velocity Edition**: Uses `bstats-velocity` (Plugin ID: `31693`) for proxy-side metrics.
+* **Paper Edition**: Uses `bstats-bukkit` for server-side metrics.
+* **Velocity Edition**: Uses `bstats-velocity` (Plugin ID: `31693`) for proxy-side metrics.
 
 If you wish to opt-out of anonymous metrics collection, you can disable it by navigating to the `plugins/bStats/config.yml` file on your server or proxy and setting `enabled: false`.
 
@@ -329,11 +350,13 @@ If you wish to opt-out of anonymous metrics collection, you can disable it by na
 For developers looking at the source code of Staff+, here is a summary of the architecture:
 
 ### Multi-Module Architecture
+
 1. **staff-core**: Platform-agnostic shared library containing the database layer, punishment model, config system, migration engine, and utility classes. Uses `ForkJoinPool.commonPool()` for async operations — no platform-specific scheduler dependencies.
 2. **staff-paper**: Paper/Folia plugin implementing `StaffPlatform` interface. Contains all Paper-specific commands, listeners, vanish, monitor, invsee, and gamemode shortcuts. Uses Folia-safe regional schedulers.
 3. **staff-velocity**: Velocity proxy plugin implementing `StaffPlatform` interface. Contains proxy-level commands and login/chat event listeners for network-wide enforcement.
 
 ### Folia Threading Rules (Paper)
+
 1. **Async Teleportation**: Never call `Player#teleport()` on Folia. Always use `Player#teleportAsync()` and queue dependent actions using `.thenRun()` or `.thenAccept()`.
 2. **Recipient Thread Safety**: Action updates (like `recipient.hidePlayer()` or `recipient.showPlayer()`) must execute on the **recipient's** regional thread context. Wrap these calls in `SchedulerUtils.runEntity(plugin, recipient, ...)` to guarantee packet delivery.
 3. **Avoid cross-region block state reads**: Calling `open.getHolder()` on block-based inventories open in other regions throws threading exceptions. Instead, maintain an in-memory, thread-safe registry of `InvseeSession` objects.
