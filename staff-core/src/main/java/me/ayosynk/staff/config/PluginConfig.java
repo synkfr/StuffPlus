@@ -1,4 +1,4 @@
-package me.ayosynk.stuff.config;
+package me.ayosynk.staff.config;
 
 import eu.okaeri.configs.OkaeriConfig;
 import eu.okaeri.configs.annotation.Comment;
@@ -40,7 +40,7 @@ public class PluginConfig extends OkaeriConfig {
     @Comment("Discord Webhook logging settings")
     private boolean discordWebhookEnabled = false;
     private String discordWebhookUrl = "";
-    private String discordWebhookUsername = "Stuff+ Moderation";
+    private String discordWebhookUsername = "Staff+ Moderation";
     private String discordWebhookAvatarUrl = "https://i.imgur.com/8Qp49X0.png";
 
     @Comment("Hex color codes for webhook embeds (without the #)")

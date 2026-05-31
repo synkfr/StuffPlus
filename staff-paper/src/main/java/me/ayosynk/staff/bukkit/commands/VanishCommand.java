@@ -1,8 +1,8 @@
-package me.ayosynk.stuff.bukkit.commands;
+package me.ayosynk.staff.bukkit.commands;
 
-import me.ayosynk.stuff.bukkit.StuffBukkitPlugin;
-import me.ayosynk.stuff.bukkit.utils.MiniMessageUtils;
-import me.ayosynk.stuff.bukkit.utils.SchedulerUtils;
+import me.ayosynk.staff.bukkit.StaffBukkitPlugin;
+import me.ayosynk.staff.bukkit.utils.MiniMessageUtils;
+import me.ayosynk.staff.bukkit.utils.SchedulerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -18,9 +18,9 @@ import java.util.UUID;
 
 public class VanishCommand implements CommandExecutor, TabCompleter {
 
-    private final StuffBukkitPlugin plugin;
+    private final StaffBukkitPlugin plugin;
 
-    public VanishCommand(StuffBukkitPlugin plugin) {
+    public VanishCommand(StaffBukkitPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -58,7 +58,7 @@ public class VanishCommand implements CommandExecutor, TabCompleter {
             if (other.getUniqueId().equals(vanished.getUniqueId())) {
                 continue;
             }
-            if (!other.hasPermission("stuff.vanish.see")) {
+            if (!other.hasPermission("staff.vanish.see")) {
                 SchedulerUtils.runEntity(plugin, other, () -> other.hidePlayer(plugin, vanished));
             }
         }

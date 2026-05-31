@@ -1,4 +1,4 @@
-package me.ayosynk.stuff.config;
+package me.ayosynk.staff.config;
 
 import eu.okaeri.configs.OkaeriConfig;
 import eu.okaeri.configs.annotation.Comment;
@@ -9,7 +9,7 @@ import eu.okaeri.configs.annotation.Names;
 public class MessageConfig extends OkaeriConfig {
 
     @Comment("Prefix for all plugin messages")
-    private String prefix = "<color:#A0A0A0>[<color:#00E262>Stuff+<color:#A0A0A0>] ";
+    private String prefix = "<color:#A0A0A0>[<color:#00E262>Staff+<color:#A0A0A0>] ";
 
     // General messages
     private String noPermission = "<color:#E20000>You do not have permission to execute this command.";

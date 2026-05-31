@@ -1,12 +1,12 @@
-package me.ayosynk.stuff.velocity.commands;
+package me.ayosynk.staff.velocity.commands;
 
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
-import me.ayosynk.stuff.database.DatabaseManager;
-import me.ayosynk.stuff.database.Punishment;
-import me.ayosynk.stuff.utils.DiscordWebhookUtils;
-import me.ayosynk.stuff.utils.DurationUtils;
-import me.ayosynk.stuff.velocity.StuffVelocityPlugin;
+import me.ayosynk.staff.database.DatabaseManager;
+import me.ayosynk.staff.database.Punishment;
+import me.ayosynk.staff.utils.DiscordWebhookUtils;
+import me.ayosynk.staff.utils.DurationUtils;
+import me.ayosynk.staff.velocity.StaffVelocityPlugin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
@@ -23,14 +23,14 @@ import java.util.stream.Collectors;
  * Network-wide punishment command handler for Velocity proxy.
  * Supports: ban, tempban, unban, ip-ban, tempip-ban, unip-ban,
  *           mute, tempmute, unmute, warn, warns,
- *           history, staffhistory, staffrollback, stuffallow, stuffimport
+ *           history, staffhistory, staffrollback, staffallow, staffimport
  */
 public class VelocityPunishCommand implements SimpleCommand {
 
-    private final StuffVelocityPlugin plugin;
+    private final StaffVelocityPlugin plugin;
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
-    public VelocityPunishCommand(StuffVelocityPlugin plugin) {
+    public VelocityPunishCommand(StaffVelocityPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -41,7 +41,7 @@ public class VelocityPunishCommand implements SimpleCommand {
         String label = invocation.alias().toLowerCase();
 
         // Permission check
-        String permission = "stuff." + label.replace("-", "");
+        String permission = "staff." + label.replace("-", "");
         if (!source.hasPermission(permission)) {
             source.sendMessage(parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getNoPermission()));
             return;
@@ -64,8 +64,8 @@ public class VelocityPunishCommand implements SimpleCommand {
             case "history" -> handleHistory(source, args, db);
             case "staffhistory" -> handleStaffHistory(source, args, db);
             case "staffrollback" -> handleStaffRollback(source, args, db);
-            case "stuffallow" -> handleStuffAllow(source, args, db);
-            case "stuffimport" -> handleStuffImport(source, args);
+            case "staffallow" -> handleStaffAllow(source, args, db);
+            case "staffimport" -> handleStaffImport(source, args);
             default -> source.sendMessage(parse("<color:#E20000>Unknown command."));
         }
     }
@@ -467,9 +467,9 @@ public class VelocityPunishCommand implements SimpleCommand {
         });
     }
 
-    private void handleStuffAllow(com.velocitypowered.api.command.CommandSource source, String[] args, DatabaseManager db) {
+    private void handleStaffAllow(com.velocitypowered.api.command.CommandSource source, String[] args, DatabaseManager db) {
         if (args.length < 1) {
-            source.sendMessage(parse("<color:#E20000>Usage: /stuffallow <player> [remove]"));
+            source.sendMessage(parse("<color:#E20000>Usage: /staffallow <player> [remove]"));
             return;
         }
         String targetName = args[0];
@@ -494,20 +494,20 @@ public class VelocityPunishCommand implements SimpleCommand {
         });
     }
 
-    private void handleStuffImport(com.velocitypowered.api.command.CommandSource source, String[] args) {
+    private void handleStaffImport(com.velocitypowered.api.command.CommandSource source, String[] args) {
         var migrationManager = plugin.getMigrationManager();
 
         if (args.length == 0) {
-            source.sendMessage(parse("<gradient:#00E262:#00FF7F>★ Stuff+ Modern Importer & Migration System ★</gradient>"));
+            source.sendMessage(parse("<gradient:#00E262:#00FF7F>★ Staff+ Modern Importer & Migration System ★</gradient>"));
             for (var s : migrationManager.getSources()) {
-                source.sendMessage(parse("<color:#A0A0A0> • </color><color:#00E262>/stuffimport " + s.getName() + "</color> - <color:#707070>" + s.getDescription() + "</color>"));
+                source.sendMessage(parse("<color:#A0A0A0> • </color><color:#00E262>/staffimport " + s.getName() + "</color> - <color:#707070>" + s.getDescription() + "</color>"));
             }
             return;
         }
 
         var sourceObj = migrationManager.getSource(args[0]);
         if (sourceObj == null) {
-            source.sendMessage(parse(plugin.getMessageConfig().getPrefix() + "<color:#E20000>Unknown migration source! Use /stuffimport to view sources."));
+            source.sendMessage(parse(plugin.getMessageConfig().getPrefix() + "<color:#E20000>Unknown migration source! Use /staffimport to view sources."));
             return;
         }
 

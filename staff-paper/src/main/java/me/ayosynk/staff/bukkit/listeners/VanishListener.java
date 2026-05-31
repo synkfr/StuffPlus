@@ -1,8 +1,8 @@
-package me.ayosynk.stuff.bukkit.listeners;
+package me.ayosynk.staff.bukkit.listeners;
 
-import me.ayosynk.stuff.bukkit.StuffBukkitPlugin;
-import me.ayosynk.stuff.bukkit.utils.MiniMessageUtils;
-import me.ayosynk.stuff.bukkit.utils.SchedulerUtils;
+import me.ayosynk.staff.bukkit.StaffBukkitPlugin;
+import me.ayosynk.staff.bukkit.utils.MiniMessageUtils;
+import me.ayosynk.staff.bukkit.utils.SchedulerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -24,9 +24,9 @@ import java.util.UUID;
 
 public class VanishListener implements Listener {
 
-    private final StuffBukkitPlugin plugin;
+    private final StaffBukkitPlugin plugin;
 
-    public VanishListener(StuffBukkitPlugin plugin) {
+    public VanishListener(StaffBukkitPlugin plugin) {
         this.plugin = plugin;
     }
 

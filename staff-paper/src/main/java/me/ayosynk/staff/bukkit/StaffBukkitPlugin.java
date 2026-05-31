@@ -1,11 +1,11 @@
-package me.ayosynk.stuff.bukkit;
+package me.ayosynk.staff.bukkit;
 
-import me.ayosynk.stuff.StuffPlatform;
-import me.ayosynk.stuff.config.MessageConfig;
-import me.ayosynk.stuff.config.PluginConfig;
-import me.ayosynk.stuff.database.DatabaseManager;
-import me.ayosynk.stuff.bukkit.utils.MiniMessageUtils;
-import me.ayosynk.stuff.bukkit.utils.SchedulerUtils;
+import me.ayosynk.staff.StaffPlatform;
+import me.ayosynk.staff.config.MessageConfig;
+import me.ayosynk.staff.config.PluginConfig;
+import me.ayosynk.staff.database.DatabaseManager;
+import me.ayosynk.staff.bukkit.utils.MiniMessageUtils;
+import me.ayosynk.staff.bukkit.utils.SchedulerUtils;
 import eu.okaeri.configs.ConfigManager;
 import eu.okaeri.configs.yaml.bukkit.YamlBukkitConfigurer;
 import org.bukkit.Bukkit;
@@ -28,12 +28,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-public final class StuffBukkitPlugin extends JavaPlugin implements StuffPlatform {
+public final class StaffBukkitPlugin extends JavaPlugin implements StaffPlatform {
 
     private PluginConfig pluginConfig;
     private MessageConfig messageConfig;
     private DatabaseManager databaseManager;
-    private me.ayosynk.stuff.migration.MigrationManager migrationManager;
+    private me.ayosynk.staff.migration.MigrationManager migrationManager;
 
     // Cache of all players ever seen (for tab completion)
     private final Set<String> registeredNames = ConcurrentHashMap.newKeySet();
@@ -97,7 +97,7 @@ public final class StuffBukkitPlugin extends JavaPlugin implements StuffPlatform
         });
 
         // Initialize Migration System
-        this.migrationManager = new me.ayosynk.stuff.migration.MigrationManager(this);
+        this.migrationManager = new me.ayosynk.staff.migration.MigrationManager(this);
         this.migrationManager.init();
 
         // Register Listeners
@@ -117,7 +117,7 @@ public final class StuffBukkitPlugin extends JavaPlugin implements StuffPlatform
             getLogger().warning("Could not initialize bStats metrics: " + e.getMessage());
         }
 
-        getLogger().info("Stuff+ Bukkit Plugin has been successfully enabled on Folia/Paper!");
+        getLogger().info("Staff+ Bukkit Plugin has been successfully enabled on Folia/Paper!");
     }
 
     @Override
@@ -142,11 +142,11 @@ public final class StuffBukkitPlugin extends JavaPlugin implements StuffPlatform
             databaseManager.shutdown();
         }
 
-        getLogger().info("Stuff+ Bukkit Plugin has been disabled.");
+        getLogger().info("Staff+ Bukkit Plugin has been disabled.");
     }
 
     // ==========================================
-    // StuffPlatform Implementation
+    // StaffPlatform Implementation
     // ==========================================
 
     @Override
@@ -170,14 +170,14 @@ public final class StuffBukkitPlugin extends JavaPlugin implements StuffPlatform
     // ==========================================
 
     private void registerListeners() {
-        getServer().getPluginManager().registerEvents(new me.ayosynk.stuff.bukkit.listeners.PlayerListener(this), this);
-        getServer().getPluginManager().registerEvents(new me.ayosynk.stuff.bukkit.listeners.VanishListener(this), this);
+        getServer().getPluginManager().registerEvents(new me.ayosynk.staff.bukkit.listeners.PlayerListener(this), this);
+        getServer().getPluginManager().registerEvents(new me.ayosynk.staff.bukkit.listeners.VanishListener(this), this);
     }
 
     private void registerCommands() {
         org.bukkit.command.CommandMap commandMap = Bukkit.getCommandMap();
 
-        me.ayosynk.stuff.bukkit.commands.PunishCommand punishCommand = new me.ayosynk.stuff.bukkit.commands.PunishCommand(this);
+        me.ayosynk.staff.bukkit.commands.PunishCommand punishCommand = new me.ayosynk.staff.bukkit.commands.PunishCommand(this);
         registerDynamic(commandMap, "mute", "Mutes a player.", "/mute <player> [reason]", Collections.singletonList("silence"), punishCommand, punishCommand);
         registerDynamic(commandMap, "tempmute", "Temporarily mutes a player.", "/tempmute <player> <time> [reason]", Collections.emptyList(), punishCommand, punishCommand);
         registerDynamic(commandMap, "unmute", "Unmutes a player.", "/unmute <player>", Collections.emptyList(), punishCommand, punishCommand);
@@ -193,43 +193,43 @@ public final class StuffBukkitPlugin extends JavaPlugin implements StuffPlatform
         registerDynamic(commandMap, "warn", "Warns a player.", "/warn <player> [reason]", Collections.emptyList(), punishCommand, punishCommand);
         registerDynamic(commandMap, "warns", "View or clear warnings.", "/warns <player> [clear/list]", Collections.emptyList(), punishCommand, punishCommand);
 
-        me.ayosynk.stuff.bukkit.commands.VanishCommand vanishCommand = new me.ayosynk.stuff.bukkit.commands.VanishCommand(this);
+        me.ayosynk.staff.bukkit.commands.VanishCommand vanishCommand = new me.ayosynk.staff.bukkit.commands.VanishCommand(this);
         registerDynamic(commandMap, "vanish", "Toggle vanish mode.", "/vanish", Arrays.asList("v", "vmode"), vanishCommand, vanishCommand);
 
-        me.ayosynk.stuff.bukkit.commands.MonitorCommand monitorCommand = new me.ayosynk.stuff.bukkit.commands.MonitorCommand(this);
+        me.ayosynk.staff.bukkit.commands.MonitorCommand monitorCommand = new me.ayosynk.staff.bukkit.commands.MonitorCommand(this);
         registerDynamic(commandMap, "monitor", "Spectate and follow a player.", "/monitor <player/leave>", Arrays.asList("spectate", "mon"), monitorCommand, monitorCommand);
 
-        me.ayosynk.stuff.bukkit.commands.InvseeCommand invseeCommand = new me.ayosynk.stuff.bukkit.commands.InvseeCommand(this);
+        me.ayosynk.staff.bukkit.commands.InvseeCommand invseeCommand = new me.ayosynk.staff.bukkit.commands.InvseeCommand(this);
         registerDynamic(commandMap, "invsee", "Inspect a player's inventory live.", "/invsee <player>", Arrays.asList("inspect", "inv"), invseeCommand, invseeCommand);
 
         // Gamemode shortcuts and Fly commands
-        me.ayosynk.stuff.bukkit.commands.GamemodeCommand gmCommand = new me.ayosynk.stuff.bukkit.commands.GamemodeCommand(this);
+        me.ayosynk.staff.bukkit.commands.GamemodeCommand gmCommand = new me.ayosynk.staff.bukkit.commands.GamemodeCommand(this);
         registerDynamic(commandMap, "gmc", "Switch to creative mode.", "/gmc [player]", Collections.emptyList(), gmCommand, gmCommand);
         registerDynamic(commandMap, "gms", "Switch to survival mode.", "/gms [player]", Collections.emptyList(), gmCommand, gmCommand);
         registerDynamic(commandMap, "gmsp", "Switch to spectator mode.", "/gmsp [player]", Collections.emptyList(), gmCommand, gmCommand);
         registerDynamic(commandMap, "gma", "Switch to adventure mode.", "/gma [player]", Collections.emptyList(), gmCommand, gmCommand);
 
-        me.ayosynk.stuff.bukkit.commands.FlyCommand flyCommand = new me.ayosynk.stuff.bukkit.commands.FlyCommand(this);
+        me.ayosynk.staff.bukkit.commands.FlyCommand flyCommand = new me.ayosynk.staff.bukkit.commands.FlyCommand(this);
         registerDynamic(commandMap, "fly", "Toggle player fly mode.", "/fly [player]", Collections.singletonList("flight"), flyCommand, flyCommand);
 
-        me.ayosynk.stuff.bukkit.commands.HistoryCommand historyCommand = new me.ayosynk.stuff.bukkit.commands.HistoryCommand(this);
+        me.ayosynk.staff.bukkit.commands.HistoryCommand historyCommand = new me.ayosynk.staff.bukkit.commands.HistoryCommand(this);
         registerDynamic(commandMap, "history", "View punishment history for players.", "/history <player>", Arrays.asList("punishhistory", "historylog"), historyCommand, historyCommand);
         registerDynamic(commandMap, "staffhistory", "View punishments issued by staff members.", "/staffhistory <staff>", Collections.emptyList(), historyCommand, historyCommand);
 
-        me.ayosynk.stuff.bukkit.commands.StaffRollbackCommand rollbackCommand = new me.ayosynk.stuff.bukkit.commands.StaffRollbackCommand(this);
+        me.ayosynk.staff.bukkit.commands.StaffRollbackCommand rollbackCommand = new me.ayosynk.staff.bukkit.commands.StaffRollbackCommand(this);
         registerDynamic(commandMap, "staffrollback", "Rollback all punishments issued by staff.", "/staffrollback <staff> [confirm]", Arrays.asList("rollbackstaff", "rollback"), rollbackCommand, rollbackCommand);
 
-        registerDynamic(commandMap, "stuffallow", "Exempt a player from IP bans.", "/stuffallow <player> [remove]", Arrays.asList("allowip", "allow"), punishCommand, punishCommand);
+        registerDynamic(commandMap, "staffallow", "Exempt a player from IP bans.", "/staffallow <player> [remove]", Arrays.asList("allowip", "allow"), punishCommand, punishCommand);
 
-        me.ayosynk.stuff.bukkit.commands.ImportCommand importCommand = new me.ayosynk.stuff.bukkit.commands.ImportCommand(this, this.migrationManager);
-        registerDynamic(commandMap, "stuffimport", "Import punishments from other plugins.", "/stuffimport <source> [params...]", Arrays.asList("migrate", "stuffmigrate"), importCommand, importCommand);
+        me.ayosynk.staff.bukkit.commands.ImportCommand importCommand = new me.ayosynk.staff.bukkit.commands.ImportCommand(this, this.migrationManager);
+        registerDynamic(commandMap, "staffimport", "Import punishments from other plugins.", "/staffimport <source> [params...]", Arrays.asList("migrate", "staffmigrate"), importCommand, importCommand);
     }
 
     private void registerDynamic(org.bukkit.command.CommandMap commandMap, String name, String description, String usage, List<String> aliases, org.bukkit.command.CommandExecutor executor, org.bukkit.command.TabCompleter tabCompleter) {
-        me.ayosynk.stuff.bukkit.commands.DynamicCommand command = new me.ayosynk.stuff.bukkit.commands.DynamicCommand(name, description, usage, aliases, executor, tabCompleter);
-        command.setPermission("stuff." + name.replace("-", ""));
+        me.ayosynk.staff.bukkit.commands.DynamicCommand command = new me.ayosynk.staff.bukkit.commands.DynamicCommand(name, description, usage, aliases, executor, tabCompleter);
+        command.setPermission("staff." + name.replace("-", ""));
         command.setPermissionMessage(messageConfig.getNoPermission());
-        commandMap.register("stuff", command);
+        commandMap.register("staff", command);
     }
 
     private void startVanishActionBarTask() {
@@ -244,7 +244,7 @@ public final class StuffBukkitPlugin extends JavaPlugin implements StuffPlatform
     }
 
     // Getters
-    public me.ayosynk.stuff.migration.MigrationManager getMigrationManager() { return migrationManager; }
+    public me.ayosynk.staff.migration.MigrationManager getMigrationManager() { return migrationManager; }
 
     // Cache operations
     public Set<String> getRegisteredNames() { return registeredNames; }
@@ -259,7 +259,7 @@ public final class StuffBukkitPlugin extends JavaPlugin implements StuffPlatform
     }
 
     public List<Player> getVisibleOnlinePlayers(org.bukkit.command.CommandSender sender) {
-        boolean canSeeVanished = sender.hasPermission("stuff.vanish.see");
+        boolean canSeeVanished = sender.hasPermission("staff.vanish.see");
         List<Player> list = new java.util.ArrayList<>();
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (isVanished(p.getUniqueId()) && !canSeeVanished) {
@@ -273,7 +273,7 @@ public final class StuffBukkitPlugin extends JavaPlugin implements StuffPlatform
     public boolean canSee(org.bukkit.command.CommandSender sender, Player target) {
         if (target == null) return false;
         if (isVanished(target.getUniqueId())) {
-            return sender.hasPermission("stuff.vanish.see");
+            return sender.hasPermission("staff.vanish.see");
         }
         return true;
     }

@@ -1,8 +1,8 @@
-package me.ayosynk.stuff.bukkit.commands;
+package me.ayosynk.staff.bukkit.commands;
 
-import me.ayosynk.stuff.bukkit.StuffBukkitPlugin;
-import me.ayosynk.stuff.bukkit.utils.MiniMessageUtils;
-import me.ayosynk.stuff.bukkit.utils.SchedulerUtils;
+import me.ayosynk.staff.bukkit.StaffBukkitPlugin;
+import me.ayosynk.staff.bukkit.utils.MiniMessageUtils;
+import me.ayosynk.staff.bukkit.utils.SchedulerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.command.Command;
@@ -19,9 +19,9 @@ import java.util.stream.Collectors;
 
 public class GamemodeCommand implements CommandExecutor, TabCompleter {
 
-    private final StuffBukkitPlugin plugin;
+    private final StaffBukkitPlugin plugin;
 
-    public GamemodeCommand(StuffBukkitPlugin plugin) {
+    public GamemodeCommand(StaffBukkitPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -39,7 +39,7 @@ public class GamemodeCommand implements CommandExecutor, TabCompleter {
             Player player = (Player) sender;
             SchedulerUtils.runEntity(plugin, player, () -> setGameMode(player, player, gm));
         } else {
-            if (!sender.hasPermission("stuff.gamemode.others")) {
+            if (!sender.hasPermission("staff.gamemode.others")) {
                 sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getNoPermission()));
                 return true;
             }
@@ -80,7 +80,7 @@ public class GamemodeCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String alias, @NotNull String[] args) {
-        if (args.length == 1 && sender.hasPermission("stuff.gamemode.others")) {
+        if (args.length == 1 && sender.hasPermission("staff.gamemode.others")) {
             String input = args[0].toLowerCase();
             return plugin.getVisibleOnlinePlayers(sender).stream()
                     .map(Player::getName)

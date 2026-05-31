@@ -1,4 +1,4 @@
-package me.ayosynk.stuff.velocity;
+package me.ayosynk.staff.velocity;
 
 import com.google.inject.Inject;
 import com.velocitypowered.api.command.CommandManager;
@@ -12,12 +12,12 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import eu.okaeri.configs.ConfigManager;
 import eu.okaeri.configs.yaml.snakeyaml.YamlSnakeYamlConfigurer;
 
-import me.ayosynk.stuff.StuffPlatform;
-import me.ayosynk.stuff.config.MessageConfig;
-import me.ayosynk.stuff.config.PluginConfig;
-import me.ayosynk.stuff.database.DatabaseManager;
-import me.ayosynk.stuff.velocity.commands.VelocityPunishCommand;
-import me.ayosynk.stuff.velocity.listeners.VelocityListeners;
+import me.ayosynk.staff.StaffPlatform;
+import me.ayosynk.staff.config.MessageConfig;
+import me.ayosynk.staff.config.PluginConfig;
+import me.ayosynk.staff.database.DatabaseManager;
+import me.ayosynk.staff.velocity.commands.VelocityPunishCommand;
+import me.ayosynk.staff.velocity.listeners.VelocityListeners;
 
 import org.bstats.velocity.Metrics;
 
@@ -29,13 +29,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 @Plugin(
-    id = "stuffplus",
-    name = "Stuff+",
+    id = "staffplus",
+    name = "Staff+",
     version = "1.0.0",
     description = "Network-wide moderation plugin for Velocity proxies",
     authors = {"me.ayosynk", "Antigravity"}
 )
-public class StuffVelocityPlugin implements StuffPlatform {
+public class StaffVelocityPlugin implements StaffPlatform {
 
     private final ProxyServer server;
     private final Logger logger;
@@ -45,15 +45,15 @@ public class StuffVelocityPlugin implements StuffPlatform {
     private PluginConfig pluginConfig;
     private MessageConfig messageConfig;
     private DatabaseManager databaseManager;
-    private me.ayosynk.stuff.migration.MigrationManager migrationManager;
+    private me.ayosynk.staff.migration.MigrationManager migrationManager;
 
     private final Set<String> registeredNames = ConcurrentHashMap.newKeySet();
 
     @Inject
-    public StuffVelocityPlugin(ProxyServer server, org.slf4j.Logger slf4jLogger, @DataDirectory Path dataDirectory, Metrics.Factory metricsFactory) {
+    public StaffVelocityPlugin(ProxyServer server, org.slf4j.Logger slf4jLogger, @DataDirectory Path dataDirectory, Metrics.Factory metricsFactory) {
         this.server = server;
-        // Bridge SLF4J to java.util.logging for StuffPlatform compatibility
-        this.logger = java.util.logging.Logger.getLogger("Stuff+");
+        // Bridge SLF4J to java.util.logging for StaffPlatform compatibility
+        this.logger = java.util.logging.Logger.getLogger("Staff+");
         this.dataDirectory = dataDirectory;
         this.metricsFactory = metricsFactory;
     }
@@ -104,7 +104,7 @@ public class StuffVelocityPlugin implements StuffPlatform {
         });
 
         // Initialize Migration System
-        this.migrationManager = new me.ayosynk.stuff.migration.MigrationManager(this);
+        this.migrationManager = new me.ayosynk.staff.migration.MigrationManager(this);
         this.migrationManager.init();
 
         // Register Commands
@@ -116,7 +116,7 @@ public class StuffVelocityPlugin implements StuffPlatform {
         // Initialize bStats Metrics (Plugin ID: 31693)
         metricsFactory.make(this, 31693);
 
-        logger.info("Stuff+ Velocity Plugin has been successfully enabled!");
+        logger.info("Staff+ Velocity Plugin has been successfully enabled!");
     }
 
     @Subscribe
@@ -124,7 +124,7 @@ public class StuffVelocityPlugin implements StuffPlatform {
         if (databaseManager != null) {
             databaseManager.shutdown();
         }
-        logger.info("Stuff+ Velocity Plugin has been disabled.");
+        logger.info("Staff+ Velocity Plugin has been disabled.");
     }
 
     private void registerCommands() {
@@ -134,7 +134,7 @@ public class StuffVelocityPlugin implements StuffPlatform {
         // Register all punishment commands
         String[] punishCommands = {"ban", "tempban", "unban", "ip-ban", "tempip-ban", "unip-ban",
                 "mute", "tempmute", "unmute", "warn", "warns",
-                "history", "staffhistory", "staffrollback", "stuffallow", "stuffimport"};
+                "history", "staffhistory", "staffrollback", "staffallow", "staffimport"};
 
         for (String cmd : punishCommands) {
             var meta = cm.metaBuilder(cmd).plugin(this).build();
@@ -143,7 +143,7 @@ public class StuffVelocityPlugin implements StuffPlatform {
     }
 
     // ==========================================
-    // StuffPlatform Implementation
+    // StaffPlatform Implementation
     // ==========================================
 
     @Override
@@ -172,7 +172,7 @@ public class StuffVelocityPlugin implements StuffPlatform {
 
     public ProxyServer getServer() { return server; }
 
-    public me.ayosynk.stuff.migration.MigrationManager getMigrationManager() { return migrationManager; }
+    public me.ayosynk.staff.migration.MigrationManager getMigrationManager() { return migrationManager; }
 
     public Set<String> getRegisteredNames() { return registeredNames; }
 

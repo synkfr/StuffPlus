@@ -1,8 +1,8 @@
-package me.ayosynk.stuff.bukkit.commands;
+package me.ayosynk.staff.bukkit.commands;
 
-import me.ayosynk.stuff.bukkit.StuffBukkitPlugin;
-import me.ayosynk.stuff.bukkit.utils.MiniMessageUtils;
-import me.ayosynk.stuff.bukkit.utils.SchedulerUtils;
+import me.ayosynk.staff.bukkit.StaffBukkitPlugin;
+import me.ayosynk.staff.bukkit.utils.MiniMessageUtils;
+import me.ayosynk.staff.bukkit.utils.SchedulerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.command.Command;
@@ -23,9 +23,9 @@ import java.util.stream.Collectors;
 
 public class MonitorCommand implements CommandExecutor, TabCompleter {
 
-    private final StuffBukkitPlugin plugin;
+    private final StaffBukkitPlugin plugin;
 
-    public MonitorCommand(StuffBukkitPlugin plugin) {
+    public MonitorCommand(StaffBukkitPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -76,7 +76,7 @@ public class MonitorCommand implements CommandExecutor, TabCompleter {
                 // Store state
                 ItemStack[] inv = staff.getInventory().getContents().clone();
                 ItemStack[] armor = staff.getInventory().getArmorContents().clone();
-                StuffBukkitPlugin.SpectatorState state = new StuffBukkitPlugin.SpectatorState(
+                StaffBukkitPlugin.SpectatorState state = new StaffBukkitPlugin.SpectatorState(
                         staff.getLocation(),
                         staff.getGameMode(),
                         inv,
@@ -122,7 +122,7 @@ public class MonitorCommand implements CommandExecutor, TabCompleter {
                                 return;
                             }
 
-                            StuffBukkitPlugin.SpectatorState currentState = plugin.getMonitorStates().get(staff.getUniqueId());
+                            StaffBukkitPlugin.SpectatorState currentState = plugin.getMonitorStates().get(staff.getUniqueId());
                             if (currentState == null) {
                                 scheduledTask.cancel();
                                 plugin.getMonitorTasks().remove(staff.getUniqueId());

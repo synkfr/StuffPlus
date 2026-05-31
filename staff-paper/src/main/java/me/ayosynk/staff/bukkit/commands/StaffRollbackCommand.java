@@ -1,8 +1,8 @@
-package me.ayosynk.stuff.bukkit.commands;
+package me.ayosynk.staff.bukkit.commands;
 
-import me.ayosynk.stuff.bukkit.StuffBukkitPlugin;
-import me.ayosynk.stuff.bukkit.utils.MiniMessageUtils;
-import me.ayosynk.stuff.bukkit.utils.SchedulerUtils;
+import me.ayosynk.staff.bukkit.StaffBukkitPlugin;
+import me.ayosynk.staff.bukkit.utils.MiniMessageUtils;
+import me.ayosynk.staff.bukkit.utils.SchedulerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -20,9 +20,9 @@ import java.util.concurrent.CompletableFuture;
 
 public class StaffRollbackCommand implements CommandExecutor, TabCompleter {
 
-    private final StuffBukkitPlugin plugin;
+    private final StaffBukkitPlugin plugin;
 
-    public StaffRollbackCommand(StuffBukkitPlugin plugin) {
+    public StaffRollbackCommand(StaffBukkitPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -60,7 +60,7 @@ public class StaffRollbackCommand implements CommandExecutor, TabCompleter {
                 
                 // Broadcast to all administrative staff
                 String broadcast = "<color:#E20000>[Rollback] " + sender.getName() + " rolled back " + revokedCount + " punishments issued by " + target.name + ".";
-                Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.admin");
+                Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "staff.admin");
             });
         });
     }

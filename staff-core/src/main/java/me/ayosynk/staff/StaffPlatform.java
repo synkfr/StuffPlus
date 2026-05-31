@@ -1,17 +1,17 @@
-package me.ayosynk.stuff;
+package me.ayosynk.staff;
 
-import me.ayosynk.stuff.config.PluginConfig;
-import me.ayosynk.stuff.config.MessageConfig;
-import me.ayosynk.stuff.database.DatabaseManager;
+import me.ayosynk.staff.config.PluginConfig;
+import me.ayosynk.staff.config.MessageConfig;
+import me.ayosynk.staff.database.DatabaseManager;
 
 import java.io.File;
 import java.util.logging.Logger;
 
 /**
- * Platform abstraction layer enabling stuff-core to run on both Bukkit and Velocity.
+ * Platform abstraction layer enabling staff-core to run on both Bukkit and Velocity.
  * Each platform module implements this interface to provide runtime-specific services.
  */
-public interface StuffPlatform {
+public interface StaffPlatform {
 
     /**
      * Gets the platform-specific logger.

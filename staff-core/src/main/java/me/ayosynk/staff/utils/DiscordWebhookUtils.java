@@ -1,6 +1,6 @@
-package me.ayosynk.stuff.utils;
+package me.ayosynk.staff.utils;
 
-import me.ayosynk.stuff.StuffPlatform;
+import me.ayosynk.staff.StaffPlatform;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -12,7 +12,7 @@ public class DiscordWebhookUtils {
 
     private static final HttpClient client = HttpClient.newBuilder().build();
 
-    public static CompletableFuture<Void> sendEmbed(StuffPlatform platform, String title, String colorHex, String player, String staff, String duration, String reason) {
+    public static CompletableFuture<Void> sendEmbed(StaffPlatform platform, String title, String colorHex, String player, String staff, String duration, String reason) {
         if (!platform.getPluginConfig().isDiscordWebhookEnabled()) {
             return CompletableFuture.completedFuture(null);
         }

@@ -1,13 +1,13 @@
-package me.ayosynk.stuff.velocity.listeners;
+package me.ayosynk.staff.velocity.listeners;
 
 import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.proxy.Player;
-import me.ayosynk.stuff.database.Punishment;
-import me.ayosynk.stuff.utils.DurationUtils;
-import me.ayosynk.stuff.velocity.StuffVelocityPlugin;
+import me.ayosynk.staff.database.Punishment;
+import me.ayosynk.staff.utils.DurationUtils;
+import me.ayosynk.staff.velocity.StaffVelocityPlugin;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import java.net.InetSocketAddress;
@@ -19,10 +19,10 @@ import java.net.InetSocketAddress;
  */
 public class VelocityListeners {
 
-    private final StuffVelocityPlugin plugin;
+    private final StaffVelocityPlugin plugin;
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
-    public VelocityListeners(StuffVelocityPlugin plugin) {
+    public VelocityListeners(StaffVelocityPlugin plugin) {
         this.plugin = plugin;
     }
 

@@ -1,6 +1,6 @@
-package me.ayosynk.stuff.migration;
+package me.ayosynk.staff.migration;
 
-import me.ayosynk.stuff.StuffPlatform;
+import me.ayosynk.staff.StaffPlatform;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -22,5 +22,5 @@ public interface MigrationSource {
      * Returns a CompletableFuture containing the number of successfully imported punishments.
      * The 'sendMessage' callback allows platform-specific message delivery.
      */
-    CompletableFuture<Integer> migrate(StuffPlatform platform, java.util.function.Consumer<String> sendMessage, String[] args);
+    CompletableFuture<Integer> migrate(StaffPlatform platform, java.util.function.Consumer<String> sendMessage, String[] args);
 }

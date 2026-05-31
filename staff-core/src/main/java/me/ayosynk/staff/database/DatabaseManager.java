@@ -1,7 +1,7 @@
-package me.ayosynk.stuff.database;
+package me.ayosynk.staff.database;
 
-import me.ayosynk.stuff.StuffPlatform;
-import me.ayosynk.stuff.config.PluginConfig;
+import me.ayosynk.staff.StaffPlatform;
+import me.ayosynk.staff.config.PluginConfig;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
-import me.ayosynk.stuff.migration.ImportedPunishment;
+import me.ayosynk.staff.migration.ImportedPunishment;
 
 /**
  * Platform-agnostic database manager.
@@ -25,10 +25,10 @@ import me.ayosynk.stuff.migration.ImportedPunishment;
  */
 public class DatabaseManager {
 
-    private final StuffPlatform platform;
+    private final StaffPlatform platform;
     private HikariDataSource dataSource;
 
-    public DatabaseManager(StuffPlatform platform) {
+    public DatabaseManager(StaffPlatform platform) {
         this.platform = platform;
     }
 
@@ -57,7 +57,7 @@ public class DatabaseManager {
             hikariConfig.setMaximumPoolSize(1);
         }
 
-        hikariConfig.setPoolName("StuffPool");
+        hikariConfig.setPoolName("StaffPool");
         this.dataSource = new HikariDataSource(hikariConfig);
 
         setupTables();
@@ -72,7 +72,7 @@ public class DatabaseManager {
     private void setupTables() {
         try (Connection conn = dataSource.getConnection(); Statement stmt = conn.createStatement()) {
             // Players Table
-            stmt.execute("CREATE TABLE IF NOT EXISTS stuff_players (" +
+            stmt.execute("CREATE TABLE IF NOT EXISTS staff_players (" +
                     "uuid VARCHAR(36) PRIMARY KEY, " +
                     "username VARCHAR(16) NOT NULL, " +
                     "ip_address VARCHAR(45) NOT NULL, " +
@@ -80,21 +80,21 @@ public class DatabaseManager {
                     ")");
 
             // Allows Table
-            stmt.execute("CREATE TABLE IF NOT EXISTS stuff_allows (" +
+            stmt.execute("CREATE TABLE IF NOT EXISTS staff_allows (" +
                     "uuid VARCHAR(36) PRIMARY KEY, " +
                     "active BOOLEAN NOT NULL" +
                     ")");
 
             // Migration: Add weight column if not exists
             try {
-                stmt.execute("ALTER TABLE stuff_players ADD COLUMN weight INT NOT NULL DEFAULT 0");
+                stmt.execute("ALTER TABLE staff_players ADD COLUMN weight INT NOT NULL DEFAULT 0");
             } catch (SQLException ignored) {}
 
             // Punishments Table
             String storage = platform.getPluginConfig().getStorageType();
             String query;
             if (storage.equalsIgnoreCase("mysql")) {
-                query = "CREATE TABLE IF NOT EXISTS stuff_punishments (" +
+                query = "CREATE TABLE IF NOT EXISTS staff_punishments (" +
                         "id INT AUTO_INCREMENT PRIMARY KEY, " +
                         "uuid VARCHAR(36), " +
                         "ip_address VARCHAR(45), " +
@@ -106,7 +106,7 @@ public class DatabaseManager {
                         "active BOOLEAN NOT NULL" +
                         ")";
             } else {
-                query = "CREATE TABLE IF NOT EXISTS stuff_punishments (" +
+                query = "CREATE TABLE IF NOT EXISTS staff_punishments (" +
                         "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         "uuid VARCHAR(36), " +
                         "ip_address VARCHAR(45), " +
@@ -132,10 +132,10 @@ public class DatabaseManager {
             boolean isMysql = platform.getPluginConfig().getStorageType().equalsIgnoreCase("mysql");
             String query;
             if (isMysql) {
-                query = "INSERT INTO stuff_players (uuid, username, ip_address, last_seen, weight) VALUES (?, ?, ?, ?, ?) " +
+                query = "INSERT INTO staff_players (uuid, username, ip_address, last_seen, weight) VALUES (?, ?, ?, ?, ?) " +
                         "ON DUPLICATE KEY UPDATE username = VALUES(username), ip_address = VALUES(ip_address), last_seen = VALUES(last_seen), weight = VALUES(weight)";
             } else {
-                query = "INSERT INTO stuff_players (uuid, username, ip_address, last_seen, weight) VALUES (?, ?, ?, ?, ?) " +
+                query = "INSERT INTO staff_players (uuid, username, ip_address, last_seen, weight) VALUES (?, ?, ?, ?, ?) " +
                         "ON CONFLICT(uuid) DO UPDATE SET username = excluded.username, ip_address = excluded.ip_address, last_seen = excluded.last_seen, weight = excluded.weight";
             }
 
@@ -162,7 +162,7 @@ public class DatabaseManager {
             return CompletableFuture.completedFuture(Integer.MAX_VALUE);
         }
         return CompletableFuture.supplyAsync(() -> {
-            String query = "SELECT weight FROM stuff_players WHERE uuid = ? LIMIT 1";
+            String query = "SELECT weight FROM staff_players WHERE uuid = ? LIMIT 1";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, uuid.toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -187,10 +187,10 @@ public class DatabaseManager {
             boolean isMysql = platform.getPluginConfig().getStorageType().equalsIgnoreCase("mysql");
             String query;
             if (isMysql) {
-                query = "INSERT INTO stuff_allows (uuid, active) VALUES (?, 1) " +
+                query = "INSERT INTO staff_allows (uuid, active) VALUES (?, 1) " +
                         "ON DUPLICATE KEY UPDATE active = 1";
             } else {
-                query = "INSERT INTO stuff_allows (uuid, active) VALUES (?, 1) " +
+                query = "INSERT INTO staff_allows (uuid, active) VALUES (?, 1) " +
                         "ON CONFLICT(uuid) DO UPDATE SET active = 1";
             }
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
@@ -208,7 +208,7 @@ public class DatabaseManager {
      */
     public CompletableFuture<Boolean> removeAllow(UUID uuid) {
         return CompletableFuture.supplyAsync(() -> {
-            String query = "UPDATE stuff_allows SET active = 0 WHERE uuid = ? AND active = 1";
+            String query = "UPDATE staff_allows SET active = 0 WHERE uuid = ? AND active = 1";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, uuid.toString());
                 int rows = ps.executeUpdate();
@@ -228,7 +228,7 @@ public class DatabaseManager {
             return CompletableFuture.completedFuture(false);
         }
         return CompletableFuture.supplyAsync(() -> {
-            String query = "SELECT active FROM stuff_allows WHERE uuid = ? AND active = 1 LIMIT 1";
+            String query = "SELECT active FROM staff_allows WHERE uuid = ? AND active = 1 LIMIT 1";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, uuid.toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -246,7 +246,7 @@ public class DatabaseManager {
      */
     public CompletableFuture<UUID> getPlayerUuidByName(String username) {
         return CompletableFuture.supplyAsync(() -> {
-            String query = "SELECT uuid FROM stuff_players WHERE LOWER(username) = LOWER(?) LIMIT 1";
+            String query = "SELECT uuid FROM staff_players WHERE LOWER(username) = LOWER(?) LIMIT 1";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, username);
                 try (ResultSet rs = ps.executeQuery()) {
@@ -268,7 +268,7 @@ public class DatabaseManager {
      */
     public CompletableFuture<String> getPlayerNameByUuid(UUID uuid) {
         return CompletableFuture.supplyAsync(() -> {
-            String query = "SELECT username FROM stuff_players WHERE uuid = ? LIMIT 1";
+            String query = "SELECT username FROM staff_players WHERE uuid = ? LIMIT 1";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, uuid.toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -291,7 +291,7 @@ public class DatabaseManager {
     public CompletableFuture<List<String>> getAllRegisteredNames() {
         return CompletableFuture.supplyAsync(() -> {
             List<String> names = new ArrayList<>();
-            String query = "SELECT username FROM stuff_players";
+            String query = "SELECT username FROM staff_players";
             try (Connection conn = dataSource.getConnection();
                  Statement stmt = conn.createStatement();
                  ResultSet rs = stmt.executeQuery(query)) {
@@ -310,7 +310,7 @@ public class DatabaseManager {
      */
     public CompletableFuture<Void> addPunishment(Punishment p) {
         return CompletableFuture.runAsync(() -> {
-            String query = "INSERT INTO stuff_punishments (uuid, ip_address, punisher_uuid, type, reason, start_time, end_time, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            String query = "INSERT INTO staff_punishments (uuid, ip_address, punisher_uuid, type, reason, start_time, end_time, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, p.getUuid() != null ? p.getUuid().toString() : null);
                 ps.setString(2, p.getIpAddress());
@@ -333,7 +333,7 @@ public class DatabaseManager {
      */
     public CompletableFuture<Boolean> deactivatePunishment(UUID uuid, Punishment.Type type) {
         return CompletableFuture.supplyAsync(() -> {
-            String query = "UPDATE stuff_punishments SET active = 0 WHERE uuid = ? AND type = ? AND active = 1";
+            String query = "UPDATE staff_punishments SET active = 0 WHERE uuid = ? AND type = ? AND active = 1";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, uuid.toString());
                 ps.setString(2, type.name());
@@ -351,7 +351,7 @@ public class DatabaseManager {
      */
     public CompletableFuture<Boolean> deactivateIpBan(String target) {
         return CompletableFuture.supplyAsync(() -> {
-            String query = "UPDATE stuff_punishments SET active = 0 WHERE (ip_address = ? OR uuid = (SELECT uuid FROM stuff_players WHERE LOWER(username) = LOWER(?) LIMIT 1)) AND type = 'IP_BAN' AND active = 1";
+            String query = "UPDATE staff_punishments SET active = 0 WHERE (ip_address = ? OR uuid = (SELECT uuid FROM staff_players WHERE LOWER(username) = LOWER(?) LIMIT 1)) AND type = 'IP_BAN' AND active = 1";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, target);
                 ps.setString(2, target);
@@ -370,7 +370,7 @@ public class DatabaseManager {
     public CompletableFuture<List<Punishment>> getWarnings(UUID uuid) {
         return CompletableFuture.supplyAsync(() -> {
             List<Punishment> warns = new ArrayList<>();
-            String query = "SELECT * FROM stuff_punishments WHERE uuid = ? AND type = 'WARN' AND active = 1 ORDER BY start_time DESC";
+            String query = "SELECT * FROM staff_punishments WHERE uuid = ? AND type = 'WARN' AND active = 1 ORDER BY start_time DESC";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, uuid.toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -391,7 +391,7 @@ public class DatabaseManager {
      */
     public CompletableFuture<Boolean> clearWarnings(UUID uuid) {
         return CompletableFuture.supplyAsync(() -> {
-            String query = "UPDATE stuff_punishments SET active = 0 WHERE uuid = ? AND type = 'WARN' AND active = 1";
+            String query = "UPDATE staff_punishments SET active = 0 WHERE uuid = ? AND type = 'WARN' AND active = 1";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, uuid.toString());
                 int rows = ps.executeUpdate();
@@ -411,9 +411,9 @@ public class DatabaseManager {
         return CompletableFuture.supplyAsync(() -> {
             String query;
             if (type == Punishment.Type.IP_BAN) {
-                query = "SELECT * FROM stuff_punishments WHERE (ip_address = ? OR uuid = ?) AND type = 'IP_BAN' AND active = 1 LIMIT 1";
+                query = "SELECT * FROM staff_punishments WHERE (ip_address = ? OR uuid = ?) AND type = 'IP_BAN' AND active = 1 LIMIT 1";
             } else {
-                query = "SELECT * FROM stuff_punishments WHERE uuid = ? AND type = ? AND active = 1 LIMIT 1";
+                query = "SELECT * FROM staff_punishments WHERE uuid = ? AND type = ? AND active = 1 LIMIT 1";
             }
 
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
@@ -448,7 +448,7 @@ public class DatabaseManager {
 
     private void deactivatePunishmentById(int id) {
         CompletableFuture.runAsync(() -> {
-            String query = "UPDATE stuff_punishments SET active = 0 WHERE id = ?";
+            String query = "UPDATE staff_punishments SET active = 0 WHERE id = ?";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setInt(1, id);
                 ps.executeUpdate();
@@ -476,7 +476,7 @@ public class DatabaseManager {
     public CompletableFuture<List<Punishment>> getHistory(UUID target) {
         return CompletableFuture.supplyAsync(() -> {
             List<Punishment> history = new ArrayList<>();
-            String query = "SELECT * FROM stuff_punishments WHERE uuid = ? ORDER BY start_time DESC";
+            String query = "SELECT * FROM staff_punishments WHERE uuid = ? ORDER BY start_time DESC";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, target.toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -498,7 +498,7 @@ public class DatabaseManager {
     public CompletableFuture<List<Punishment>> getStaffHistory(UUID staff) {
         return CompletableFuture.supplyAsync(() -> {
             List<Punishment> history = new ArrayList<>();
-            String query = "SELECT * FROM stuff_punishments WHERE punisher_uuid = ? ORDER BY start_time DESC";
+            String query = "SELECT * FROM staff_punishments WHERE punisher_uuid = ? ORDER BY start_time DESC";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, staff.toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -520,7 +520,7 @@ public class DatabaseManager {
      */
     public CompletableFuture<Integer> rollbackStaff(UUID staff) {
         return CompletableFuture.supplyAsync(() -> {
-            String query = "UPDATE stuff_punishments SET active = 0 WHERE punisher_uuid = ? AND active = 1";
+            String query = "UPDATE staff_punishments SET active = 0 WHERE punisher_uuid = ? AND active = 1";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, staff.toString());
                 return ps.executeUpdate();
@@ -537,7 +537,7 @@ public class DatabaseManager {
     public CompletableFuture<List<PlayerRecord>> getAltsByIp(String ip) {
         return CompletableFuture.supplyAsync(() -> {
             List<PlayerRecord> alts = new ArrayList<>();
-            String query = "SELECT uuid, username, ip_address FROM stuff_players WHERE ip_address = ?";
+            String query = "SELECT uuid, username, ip_address FROM staff_players WHERE ip_address = ?";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, ip);
                 try (ResultSet rs = ps.executeQuery()) {
@@ -558,7 +558,7 @@ public class DatabaseManager {
 
     public CompletableFuture<PlayerRecord> getPlayerRecord(UUID uuid) {
         return CompletableFuture.supplyAsync(() -> {
-            String query = "SELECT username, ip_address FROM stuff_players WHERE uuid = ? LIMIT 1";
+            String query = "SELECT username, ip_address FROM staff_players WHERE uuid = ? LIMIT 1";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setString(1, uuid.toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -600,7 +600,7 @@ public class DatabaseManager {
      */
     public CompletableFuture<Integer> importBatch(List<ImportedPunishment> punishments) {
         return CompletableFuture.supplyAsync(() -> {
-            String query = "INSERT INTO stuff_punishments (uuid, ip_address, punisher_uuid, type, reason, start_time, end_time, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            String query = "INSERT INTO staff_punishments (uuid, ip_address, punisher_uuid, type, reason, start_time, end_time, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             try (Connection conn = dataSource.getConnection()) {
                 conn.setAutoCommit(false);
                 try (PreparedStatement ps = conn.prepareStatement(query)) {

@@ -1,4 +1,4 @@
-package me.ayosynk.stuff.bukkit.commands;
+package me.ayosynk.staff.bukkit.commands;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;

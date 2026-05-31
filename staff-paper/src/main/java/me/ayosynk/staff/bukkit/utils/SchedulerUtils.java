@@ -1,4 +1,4 @@
-package me.ayosynk.stuff.bukkit.utils;
+package me.ayosynk.staff.bukkit.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

@@ -1,12 +1,12 @@
-package me.ayosynk.stuff.bukkit.listeners;
+package me.ayosynk.staff.bukkit.listeners;
 
-import me.ayosynk.stuff.bukkit.StuffBukkitPlugin;
-import me.ayosynk.stuff.bukkit.commands.InvseeCommand;
-import me.ayosynk.stuff.bukkit.commands.InvseeHolder;
-import me.ayosynk.stuff.database.Punishment;
-import me.ayosynk.stuff.utils.DurationUtils;
-import me.ayosynk.stuff.bukkit.utils.MiniMessageUtils;
-import me.ayosynk.stuff.bukkit.utils.SchedulerUtils;
+import me.ayosynk.staff.bukkit.StaffBukkitPlugin;
+import me.ayosynk.staff.bukkit.commands.InvseeCommand;
+import me.ayosynk.staff.bukkit.commands.InvseeHolder;
+import me.ayosynk.staff.database.Punishment;
+import me.ayosynk.staff.utils.DurationUtils;
+import me.ayosynk.staff.bukkit.utils.MiniMessageUtils;
+import me.ayosynk.staff.bukkit.utils.SchedulerUtils;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -32,13 +32,13 @@ import java.util.UUID;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
-import me.ayosynk.stuff.database.DatabaseManager;
+import me.ayosynk.staff.database.DatabaseManager;
 
 public class PlayerListener implements Listener {
 
-    private final StuffBukkitPlugin plugin;
+    private final StaffBukkitPlugin plugin;
 
-    public PlayerListener(StuffBukkitPlugin plugin) {
+    public PlayerListener(StaffBukkitPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -129,13 +129,13 @@ public class PlayerListener implements Listener {
             event.joinMessage(null);
         }
 
-        // Determine player weight from permissions node: stuff.hierarchy.weight.<number>
+        // Determine player weight from permissions node: staff.hierarchy.weight.<number>
         int weight = 0;
         for (org.bukkit.permissions.PermissionAttachmentInfo info : player.getEffectivePermissions()) {
             String perm = info.getPermission().toLowerCase();
-            if (perm.startsWith("stuff.hierarchy.weight.")) {
+            if (perm.startsWith("staff.hierarchy.weight.")) {
                 try {
-                    int w = Integer.parseInt(perm.substring("stuff.hierarchy.weight.".length()));
+                    int w = Integer.parseInt(perm.substring("staff.hierarchy.weight.".length()));
                     if (w > weight) {
                         weight = w;
                     }
@@ -174,7 +174,7 @@ public class PlayerListener implements Listener {
 
                             // Broadcast to online staff members
                             for (Player staff : Bukkit.getOnlinePlayers()) {
-                                if (staff.hasPermission("stuff.admin")) {
+                                if (staff.hasPermission("staff.admin")) {
                                     staff.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + alertMsg));
                                 }
                             }
@@ -201,7 +201,7 @@ public class PlayerListener implements Listener {
         // 2. Handle Vanish hiding
         SchedulerUtils.runEntity(plugin, player, () -> {
             // Hide existing vanished players from the new joiner if they don't have bypass permission
-            if (!player.hasPermission("stuff.vanish.see")) {
+            if (!player.hasPermission("staff.vanish.see")) {
                 for (UUID vanishedUuid : plugin.getVanishedPlayers()) {
                     Player vanished = Bukkit.getPlayer(vanishedUuid);
                     if (vanished != null && vanished.isOnline()) {
@@ -214,7 +214,7 @@ public class PlayerListener implements Listener {
             if (plugin.isVanished(uuid)) {
                 for (Player other : Bukkit.getOnlinePlayers()) {
                     if (other.getUniqueId().equals(uuid)) continue;
-                    if (!other.hasPermission("stuff.vanish.see")) {
+                    if (!other.hasPermission("staff.vanish.see")) {
                         SchedulerUtils.runEntity(plugin, other, () -> other.hidePlayer(plugin, player));
                     }
                 }
@@ -356,7 +356,7 @@ public class PlayerListener implements Listener {
      * Thread-safe under Folia: iterates over registered sessions instead of accessing other players' open inventories directly.
      */
     private void refreshTargetViewers(Player target) {
-        for (StuffBukkitPlugin.InvseeSession session : plugin.getInvseeSessions().values()) {
+        for (StaffBukkitPlugin.InvseeSession session : plugin.getInvseeSessions().values()) {
             if (session.getTargetUuid().equals(target.getUniqueId())) {
                 Player staff = Bukkit.getPlayer(session.getStaffUuid());
                 if (staff != null && staff.isOnline()) {
@@ -430,7 +430,7 @@ public class PlayerListener implements Listener {
 
         // 3. If a monitored target quits, restore any staff monitoring them
         for (UUID staffUuid : plugin.getMonitorStates().keySet()) {
-            StuffBukkitPlugin.SpectatorState state = plugin.getMonitorStates().get(staffUuid);
+            StaffBukkitPlugin.SpectatorState state = plugin.getMonitorStates().get(staffUuid);
             if (state != null && state.getTargetUuid().equals(uuid)) {
                 Player staff = Bukkit.getPlayer(staffUuid);
                 if (staff != null && staff.isOnline()) {
@@ -441,7 +441,7 @@ public class PlayerListener implements Listener {
         }
 
         // 4. If target of invsee quits, close open GUIs for all viewing staff
-        for (StuffBukkitPlugin.InvseeSession session : plugin.getInvseeSessions().values()) {
+        for (StaffBukkitPlugin.InvseeSession session : plugin.getInvseeSessions().values()) {
             if (session.getTargetUuid().equals(uuid)) {
                 Player staff = Bukkit.getPlayer(session.getStaffUuid());
                 if (staff != null && staff.isOnline()) {

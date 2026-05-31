@@ -1,6 +1,6 @@
-package me.ayosynk.stuff.migration;
+package me.ayosynk.staff.migration;
 
-import me.ayosynk.stuff.StuffPlatform;
+import me.ayosynk.staff.StaffPlatform;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -29,10 +29,10 @@ import java.util.function.Consumer;
  */
 public class MigrationManager {
 
-    private final StuffPlatform platform;
+    private final StaffPlatform platform;
     private final Map<String, MigrationSource> sources = new HashMap<>();
 
-    public MigrationManager(StuffPlatform platform) {
+    public MigrationManager(StaffPlatform platform) {
         this.platform = platform;
     }
 
@@ -209,7 +209,7 @@ public class MigrationManager {
         @Override public String getDescription() { return "Vanilla banned-players.json and banned-ips.json files"; }
 
         @Override
-        public CompletableFuture<Integer> migrate(StuffPlatform platform, Consumer<String> sendMessage, String[] args) {
+        public CompletableFuture<Integer> migrate(StaffPlatform platform, Consumer<String> sendMessage, String[] args) {
             return CompletableFuture.supplyAsync(() -> {
                 try {
                     List<ImportedPunishment> list = new ArrayList<>();
@@ -277,7 +277,7 @@ public class MigrationManager {
         @Override public String getDescription() { return "Essentials userdata YAML profiles"; }
 
         @Override
-        public CompletableFuture<Integer> migrate(StuffPlatform platform, Consumer<String> sendMessage, String[] args) {
+        public CompletableFuture<Integer> migrate(StaffPlatform platform, Consumer<String> sendMessage, String[] args) {
             return CompletableFuture.supplyAsync(() -> {
                 try {
                     File userdata = new File(platform.getDataFolder().getParentFile(), "Essentials/userdata");
@@ -352,7 +352,7 @@ public class MigrationManager {
         @Override public String getDescription() { return "LiteBans database (auto-detected or parameters)"; }
 
         @Override
-        public CompletableFuture<Integer> migrate(StuffPlatform platform, Consumer<String> sendMessage, String[] args) {
+        public CompletableFuture<Integer> migrate(StaffPlatform platform, Consumer<String> sendMessage, String[] args) {
             return CompletableFuture.supplyAsync(() -> {
                 try {
                     File folder = new File(platform.getDataFolder().getParentFile(), "LiteBans");
@@ -399,14 +399,14 @@ public class MigrationManager {
                     if (jdbcUrl == null) {
                         File h2File = new File("litebans.mv.db");
                         if (h2File.exists()) {
-                            try { Class.forName("me.ayosynk.stuff.libs.h2.Driver"); }
+                            try { Class.forName("me.ayosynk.staff.libs.h2.Driver"); }
                             catch (ClassNotFoundException e) { Class.forName("org.h2.Driver"); }
                             jdbcUrl = "jdbc:h2:./litebans;mode=MySQL";
                         }
                     }
 
                     if (jdbcUrl == null) {
-                        throw new RuntimeException("Could not autodetect LiteBans connection. Use: /stuffimport litebans <jdbcUrl> <user> <pass> [prefix]");
+                        throw new RuntimeException("Could not autodetect LiteBans connection. Use: /staffimport litebans <jdbcUrl> <user> <pass> [prefix]");
                     }
 
                     List<ImportedPunishment> list = new ArrayList<>();
@@ -476,7 +476,7 @@ public class MigrationManager {
         @Override public String getDescription() { return "AdvancedBan database (auto-detected or parameters)"; }
 
         @Override
-        public CompletableFuture<Integer> migrate(StuffPlatform platform, Consumer<String> sendMessage, String[] args) {
+        public CompletableFuture<Integer> migrate(StaffPlatform platform, Consumer<String> sendMessage, String[] args) {
             return CompletableFuture.supplyAsync(() -> {
                 try {
                     File folder = new File(platform.getDataFolder().getParentFile(), "AdvancedBan");
@@ -512,7 +512,7 @@ public class MigrationManager {
                     }
 
                     if (jdbcUrl == null) {
-                        throw new RuntimeException("Could not autodetect AdvancedBan connection. Use: /stuffimport advancedban <jdbcUrl> <user> <pass>");
+                        throw new RuntimeException("Could not autodetect AdvancedBan connection. Use: /staffimport advancedban <jdbcUrl> <user> <pass>");
                     }
 
                     List<ImportedPunishment> list = new ArrayList<>();
@@ -556,7 +556,7 @@ public class MigrationManager {
         @Override public String getDescription() { return "MaxBans database (auto-detected or parameters)"; }
 
         @Override
-        public CompletableFuture<Integer> migrate(StuffPlatform platform, Consumer<String> sendMessage, String[] args) {
+        public CompletableFuture<Integer> migrate(StaffPlatform platform, Consumer<String> sendMessage, String[] args) {
             return CompletableFuture.supplyAsync(() -> {
                 try {
                     File folder = new File(platform.getDataFolder().getParentFile(), "MaxBans");
@@ -592,7 +592,7 @@ public class MigrationManager {
                     }
 
                     if (jdbcUrl == null) {
-                        throw new RuntimeException("Could not autodetect MaxBans connection. Use: /stuffimport maxbans <jdbcUrl> <user> <pass>");
+                        throw new RuntimeException("Could not autodetect MaxBans connection. Use: /staffimport maxbans <jdbcUrl> <user> <pass>");
                     }
 
                     List<ImportedPunishment> list = new ArrayList<>();
@@ -667,7 +667,7 @@ public class MigrationManager {
         @Override public String getDescription() { return "BanManager database (auto-detected or parameters)"; }
 
         @Override
-        public CompletableFuture<Integer> migrate(StuffPlatform platform, Consumer<String> sendMessage, String[] args) {
+        public CompletableFuture<Integer> migrate(StaffPlatform platform, Consumer<String> sendMessage, String[] args) {
             return CompletableFuture.supplyAsync(() -> {
                 try {
                     File folder = new File(platform.getDataFolder().getParentFile(), "BanManager");
@@ -706,7 +706,7 @@ public class MigrationManager {
                     }
 
                     if (jdbcUrl == null) {
-                        throw new RuntimeException("Could not autodetect BanManager connection. Use: /stuffimport banmanager <jdbcUrl> <user> <pass> [prefix]");
+                        throw new RuntimeException("Could not autodetect BanManager connection. Use: /staffimport banmanager <jdbcUrl> <user> <pass> [prefix]");
                     }
 
                     List<ImportedPunishment> list = new ArrayList<>();
@@ -769,7 +769,7 @@ public class MigrationManager {
         @Override public String getDescription() { return "BungeeAdminTools database (auto-detected or parameters)"; }
 
         @Override
-        public CompletableFuture<Integer> migrate(StuffPlatform platform, Consumer<String> sendMessage, String[] args) {
+        public CompletableFuture<Integer> migrate(StaffPlatform platform, Consumer<String> sendMessage, String[] args) {
             return CompletableFuture.supplyAsync(() -> {
                 try {
                     File folder = new File(platform.getDataFolder().getParentFile(), "BungeeAdminTools");
@@ -808,7 +808,7 @@ public class MigrationManager {
                     }
 
                     if (jdbcUrl == null) {
-                        throw new RuntimeException("Could not autodetect BungeeAdminTools connection. Use: /stuffimport bat <jdbcUrl> <user> <pass> [prefix]");
+                        throw new RuntimeException("Could not autodetect BungeeAdminTools connection. Use: /staffimport bat <jdbcUrl> <user> <pass> [prefix]");
                     }
 
                     List<ImportedPunishment> list = new ArrayList<>();

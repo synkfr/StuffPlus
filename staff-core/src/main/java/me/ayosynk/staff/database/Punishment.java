@@ -1,4 +1,4 @@
-package me.ayosynk.stuff.database;
+package me.ayosynk.staff.database;
 
 import java.sql.Timestamp;
 import java.util.UUID;

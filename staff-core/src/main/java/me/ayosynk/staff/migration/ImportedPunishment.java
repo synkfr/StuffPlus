@@ -1,4 +1,4 @@
-package me.ayosynk.stuff.migration;
+package me.ayosynk.staff.migration;
 
 import java.sql.Timestamp;
 

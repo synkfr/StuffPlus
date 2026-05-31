@@ -1,9 +1,9 @@
-package me.ayosynk.stuff.bukkit.commands;
+package me.ayosynk.staff.bukkit.commands;
 
-import me.ayosynk.stuff.bukkit.StuffBukkitPlugin;
-import me.ayosynk.stuff.database.Punishment;
-import me.ayosynk.stuff.bukkit.utils.MiniMessageUtils;
-import me.ayosynk.stuff.bukkit.utils.SchedulerUtils;
+import me.ayosynk.staff.bukkit.StaffBukkitPlugin;
+import me.ayosynk.staff.database.Punishment;
+import me.ayosynk.staff.bukkit.utils.MiniMessageUtils;
+import me.ayosynk.staff.bukkit.utils.SchedulerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -23,10 +23,10 @@ import java.util.stream.Collectors;
 
 public class HistoryCommand implements CommandExecutor, TabCompleter {
 
-    private final StuffBukkitPlugin plugin;
+    private final StaffBukkitPlugin plugin;
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    public HistoryCommand(StuffBukkitPlugin plugin) {
+    public HistoryCommand(StaffBukkitPlugin plugin) {
         this.plugin = plugin;
     }
 

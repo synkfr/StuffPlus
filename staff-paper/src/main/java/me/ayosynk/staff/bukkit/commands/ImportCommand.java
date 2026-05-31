@@ -1,9 +1,9 @@
-package me.ayosynk.stuff.bukkit.commands;
+package me.ayosynk.staff.bukkit.commands;
 
-import me.ayosynk.stuff.bukkit.StuffBukkitPlugin;
-import me.ayosynk.stuff.migration.MigrationManager;
-import me.ayosynk.stuff.migration.MigrationSource;
-import me.ayosynk.stuff.bukkit.utils.MiniMessageUtils;
+import me.ayosynk.staff.bukkit.StaffBukkitPlugin;
+import me.ayosynk.staff.migration.MigrationManager;
+import me.ayosynk.staff.migration.MigrationSource;
+import me.ayosynk.staff.bukkit.utils.MiniMessageUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -20,18 +20,18 @@ import java.util.stream.Collectors;
 
 public class ImportCommand implements CommandExecutor, TabCompleter {
 
-    private final StuffBukkitPlugin plugin;
+    private final StaffBukkitPlugin plugin;
     private final MigrationManager migrationManager;
     private final AtomicBoolean migrating = new AtomicBoolean(false);
 
-    public ImportCommand(StuffBukkitPlugin plugin, MigrationManager migrationManager) {
+    public ImportCommand(StaffBukkitPlugin plugin, MigrationManager migrationManager) {
         this.plugin = plugin;
         this.migrationManager = migrationManager;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
-        if (!sender.hasPermission("stuff.import")) {
+        if (!sender.hasPermission("staff.import")) {
             sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getNoPermission()));
             return true;
         }
@@ -45,7 +45,7 @@ public class ImportCommand implements CommandExecutor, TabCompleter {
         MigrationSource source = migrationManager.getSource(sourceName);
 
         if (source == null) {
-            sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + "<color:#E20000>Unknown migration source! Use /stuffimport to view active sources."));
+            sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + "<color:#E20000>Unknown migration source! Use /staffimport to view active sources."));
             return true;
         }
 
@@ -69,7 +69,7 @@ public class ImportCommand implements CommandExecutor, TabCompleter {
     }
 
     private void sendOverview(CommandSender sender) {
-        sender.sendMessage(MiniMessageUtils.parse("<gradient:#00E262:#00FF7F>★ Stuff+ Modern Importer & Migration System ★</gradient>"));
+        sender.sendMessage(MiniMessageUtils.parse("<gradient:#00E262:#00FF7F>★ Staff+ Modern Importer & Migration System ★</gradient>"));
         sender.sendMessage(MiniMessageUtils.parse("<color:#808080>--------------------------------------------------</color>"));
         sender.sendMessage(MiniMessageUtils.parse("<color:#A0A0A0>Scanning local configurations...</color>"));
 
@@ -81,18 +81,18 @@ public class ImportCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(MiniMessageUtils.parse("<color:#808080>--------------------------------------------------</color>"));
         sender.sendMessage(MiniMessageUtils.parse("<color:#A0A0A0>Available Imports:</color>"));
         for (MigrationSource source : migrationManager.getSources()) {
-            sender.sendMessage(MiniMessageUtils.parse("<color:#A0A0A0> • </color><color:#00E262>/stuffimport " + source.getName() + "</color> - <color:#707070>" + source.getDescription() + "</color>"));
+            sender.sendMessage(MiniMessageUtils.parse("<color:#A0A0A0> • </color><color:#00E262>/staffimport " + source.getName() + "</color> - <color:#707070>" + source.getDescription() + "</color>"));
         }
         sender.sendMessage(MiniMessageUtils.parse("<color:#808080>--------------------------------------------------</color>"));
         sender.sendMessage(MiniMessageUtils.parse("<color:#707070>To connect to a remote SQL source explicitly, use:</color>"));
-        sender.sendMessage(MiniMessageUtils.parse("<color:#00E262>/stuffimport <litebans/advancedban/maxbans/banmanager/bat> <jdbcUrl> <user> <pass> [prefix]</color>"));
-        sender.sendMessage(MiniMessageUtils.parse("<color:#707070>Example: /stuffimport litebans jdbc:mysql://localhost:3306/bans root pass litebans_</color>"));
+        sender.sendMessage(MiniMessageUtils.parse("<color:#00E262>/staffimport <litebans/advancedban/maxbans/banmanager/bat> <jdbcUrl> <user> <pass> [prefix]</color>"));
+        sender.sendMessage(MiniMessageUtils.parse("<color:#707070>Example: /staffimport litebans jdbc:mysql://localhost:3306/bans root pass litebans_</color>"));
         sender.sendMessage(MiniMessageUtils.parse("<color:#808080>--------------------------------------------------</color>"));
     }
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String alias, @NotNull String[] args) {
-        if (!sender.hasPermission("stuff.import")) {
+        if (!sender.hasPermission("staff.import")) {
             return Collections.emptyList();
         }
 

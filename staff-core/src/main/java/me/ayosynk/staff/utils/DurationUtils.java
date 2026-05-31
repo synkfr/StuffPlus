@@ -1,4 +1,4 @@
-package me.ayosynk.stuff.utils;
+package me.ayosynk.staff.utils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

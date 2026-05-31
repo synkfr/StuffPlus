@@ -1,10 +1,10 @@
-package me.ayosynk.stuff.bukkit.commands;
+package me.ayosynk.staff.bukkit.commands;
 
-import me.ayosynk.stuff.bukkit.StuffBukkitPlugin;
-import me.ayosynk.stuff.database.Punishment;
-import me.ayosynk.stuff.utils.DurationUtils;
-import me.ayosynk.stuff.bukkit.utils.MiniMessageUtils;
-import me.ayosynk.stuff.bukkit.utils.SchedulerUtils;
+import me.ayosynk.staff.bukkit.StaffBukkitPlugin;
+import me.ayosynk.staff.database.Punishment;
+import me.ayosynk.staff.utils.DurationUtils;
+import me.ayosynk.staff.bukkit.utils.MiniMessageUtils;
+import me.ayosynk.staff.bukkit.utils.SchedulerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -27,11 +27,11 @@ import java.util.stream.Collectors;
 
 public class PunishCommand implements CommandExecutor, TabCompleter {
 
-    private final StuffBukkitPlugin plugin;
+    private final StaffBukkitPlugin plugin;
     private static final Pattern IP_PATTERN = Pattern.compile("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    public PunishCommand(StuffBukkitPlugin plugin) {
+    public PunishCommand(StaffBukkitPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -110,7 +110,7 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
                                         .replace("{sender}", senderName)
                                         .replace("{time}", timeStr)
                                         .replace("{reason}", reason);
-                                Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.mute");
+                                Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "staff.mute");
                             });
 
                             // Notify online target if they are online
@@ -124,7 +124,7 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
                             }
 
                             // Trigger Discord Webhook
-                            me.ayosynk.stuff.utils.DiscordWebhookUtils.sendEmbed(
+                            me.ayosynk.staff.utils.DiscordWebhookUtils.sendEmbed(
                                     plugin,
                                     "Player Muted",
                                     plugin.getPluginConfig().getDiscordWebhookColorMute(),
@@ -160,7 +160,7 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
                                 String broadcast = plugin.getMessageConfig().getPlayerUnmutedBroadcast()
                                         .replace("{player}", target.name)
                                         .replace("{sender}", senderName);
-                                Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.mute");
+                                Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "staff.mute");
                             });
                         });
                     });
@@ -216,7 +216,7 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
                                         .replace("{sender}", senderName)
                                         .replace("{time}", timeStr)
                                         .replace("{reason}", reason);
-                                Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.ban");
+                                Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "staff.ban");
                             });
 
                             // Kick target player if online (Folia Regional Safe)
@@ -230,7 +230,7 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
                             }
 
                             // Trigger Discord Webhook
-                            me.ayosynk.stuff.utils.DiscordWebhookUtils.sendEmbed(
+                            me.ayosynk.staff.utils.DiscordWebhookUtils.sendEmbed(
                                     plugin,
                                     "Player Banned",
                                     plugin.getPluginConfig().getDiscordWebhookColorBan(),
@@ -266,7 +266,7 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
                                 String broadcast = plugin.getMessageConfig().getPlayerUnbannedBroadcast()
                                         .replace("{player}", target.name)
                                         .replace("{sender}", senderName);
-                                Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.ban");
+                                Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "staff.ban");
                             });
                         });
                     });
@@ -329,7 +329,7 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
                                         .replace("{sender}", senderName)
                                         .replace("{time}", timeStr)
                                         .replace("{reason}", reason);
-                                Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.ipban");
+                                Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "staff.ipban");
                             });
 
                             // Kick any player matching the IP
@@ -347,7 +347,7 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
                             });
 
                             // Trigger Discord Webhook
-                            me.ayosynk.stuff.utils.DiscordWebhookUtils.sendEmbed(
+                            me.ayosynk.staff.utils.DiscordWebhookUtils.sendEmbed(
                                     plugin,
                                     "Player IP-Banned",
                                     plugin.getPluginConfig().getDiscordWebhookColorBan(),
@@ -383,7 +383,7 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
                                 String broadcast = plugin.getMessageConfig().getIpUnbannedBroadcast()
                                         .replace("{ip}", target.name)
                                         .replace("{sender}", senderName);
-                                Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.ipban");
+                                Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "staff.ipban");
                             });
                         });
                     });
@@ -411,7 +411,7 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
                                     .replace("{player}", target.name)
                                     .replace("{sender}", senderName)
                                     .replace("{reason}", reason);
-                            Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.warn");
+                            Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "staff.warn");
                         });
 
                         Player targetPlayer = Bukkit.getPlayer(target.uuid);
@@ -437,7 +437,7 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
                         }
 
                         // Trigger Discord Webhook
-                        me.ayosynk.stuff.utils.DiscordWebhookUtils.sendEmbed(
+                        me.ayosynk.staff.utils.DiscordWebhookUtils.sendEmbed(
                                 plugin,
                                 "Player Warned",
                                 plugin.getPluginConfig().getDiscordWebhookColorWarn(),
@@ -530,9 +530,9 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
                 break;
             }
 
-            case "stuffallow": {
+            case "staffallow": {
                 if (args.length < 1) {
-                    sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + "<color:#E20000>Usage: /stuffallow <player> [remove]"));
+                    sender.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + "<color:#E20000>Usage: /staffallow <player> [remove]"));
                     return;
                 }
 
@@ -563,7 +563,7 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
                                 SchedulerUtils.runGlobal(plugin, () -> {
                                     String broadcast = plugin.getMessageConfig().getPlayerUnallowedBroadcast()
                                             .replace("{player}", target.name);
-                                    Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.ipban");
+                                    Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "staff.ipban");
                                 });
                             });
                         } else {
@@ -573,7 +573,7 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
                                     String broadcast = plugin.getMessageConfig().getPlayerAllowedBroadcast()
                                             .replace("{player}", target.name)
                                             .replace("{sender}", senderName);
-                                    Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "stuff.ipban");
+                                    Bukkit.broadcast(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + broadcast), "staff.ipban");
                                 });
                             });
                         }
@@ -653,9 +653,9 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
         int maxWeight = 0;
         for (org.bukkit.permissions.PermissionAttachmentInfo info : player.getEffectivePermissions()) {
             String perm = info.getPermission().toLowerCase();
-            if (perm.startsWith("stuff.hierarchy.weight.")) {
+            if (perm.startsWith("staff.hierarchy.weight.")) {
                 try {
-                    int weight = Integer.parseInt(perm.substring("stuff.hierarchy.weight.".length()));
+                    int weight = Integer.parseInt(perm.substring("staff.hierarchy.weight.".length()));
                     if (weight > maxWeight) {
                         maxWeight = weight;
                     }
@@ -737,7 +737,7 @@ public class PunishCommand implements CommandExecutor, TabCompleter {
                 String input = args[1].toLowerCase();
                 return sub.stream().filter(s -> s.startsWith(input)).collect(Collectors.toList());
             }
-            if (name.equals("stuffallow")) {
+            if (name.equals("staffallow")) {
                 List<String> sub = Arrays.asList("remove");
                 String input = args[1].toLowerCase();
                 return sub.stream().filter(s -> s.startsWith(input)).collect(Collectors.toList());
