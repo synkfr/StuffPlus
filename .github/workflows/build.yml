@@ -1,4 +1,4 @@
-name: Build and Package Stuff+
+name: Build and Package Staff+
 
 on:
   push:
@@ -49,24 +49,24 @@ jobs:
       - name: Stage Release Artifacts
         run: |
           mkdir -p staging
-          cp stuff-paper/build/libs/StuffPlus-Paper-*.jar staging/
-          cp stuff-velocity/build/libs/StuffPlus-Velocity-*.jar staging/
+          cp staff-paper/build/libs/StaffPlus-Paper-*.jar staging/
+          cp staff-velocity/build/libs/StaffPlus-Velocity-*.jar staging/
           echo "Staged artifacts:"
           ls -lh staging/
 
       - name: Upload Paper JAR Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: StuffPlus-Paper
-          path: staging/StuffPlus-Paper-*.jar
+          name: StaffPlus-Paper
+          path: staging/StaffPlus-Paper-*.jar
           if-no-files-found: error
           retention-days: 7
 
       - name: Upload Velocity JAR Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: StuffPlus-Velocity
-          path: staging/StuffPlus-Velocity-*.jar
+          name: StaffPlus-Velocity
+          path: staging/StaffPlus-Velocity-*.jar
           if-no-files-found: error
           retention-days: 7
 
@@ -92,8 +92,8 @@ jobs:
             --notes "Latest development pre-release build from branch master. Commit: $SHORT_SHA (Run #${{ github.run_number }}).
 
           **Artifacts:**
-          - \`StuffPlus-Paper\` — For Paper/Purpur/Folia 1.20+ servers
-          - \`StuffPlus-Velocity\` — For Velocity 3.3.0+ proxies"
+          - \`StaffPlus-Paper\` — For Paper/Purpur/Folia 1.20+ servers
+          - \`StaffPlus-Velocity\` — For Velocity 3.3.0+ proxies"
 
       # 2. Production Release Deployment
       - name: Deploy Production Release
@@ -106,8 +106,8 @@ jobs:
           
           gh release create "$TAG_NAME" staging/*.jar \
             --title "Release $TAG_NAME" \
-            --notes "Official production release of Stuff+ ($TAG_NAME).
+            --notes "Official production release of Staff+ ($TAG_NAME).
 
           **Artifacts:**
-          - \`StuffPlus-Paper\` — For Paper/Purpur/Folia 1.20+ servers
-          - \`StuffPlus-Velocity\` — For Velocity 3.3.0+ proxies"
+          - \`StaffPlus-Paper\` — For Paper/Purpur/Folia 1.20+ servers
+          - \`StaffPlus-Velocity\` — For Velocity 3.3.0+ proxies"

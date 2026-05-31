@@ -2,12 +2,12 @@
 layout: home
 
 hero:
-  name: "Stuff+"
+  name: "Staff+"
   text: "Modern Moderation & Administrative Utilities"
   tagline: "A powerful, cross-platform staff toolkit for Paper, Folia, and Velocity networks"
   image:
-    src: https://raw.githubusercontent.com/synkfr/StuffPlus/master/docs/public/logo.png
-    alt: Stuff+ Logo
+    src: https://raw.githubusercontent.com/synkfr/StaffPlus/master/docs/public/logo.png
+    alt: Staff+ Logo
   actions:
     - theme: brand
       text: Getting Started
@@ -17,7 +17,7 @@ hero:
       link: /guide/commands
     - theme: alt
       text: View on GitHub
-      link: https://github.com/synkfr/StuffPlus
+      link: https://github.com/synkfr/StaffPlus
 
 features:
   - icon: 🌐

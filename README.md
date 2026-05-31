@@ -1,9 +1,9 @@
-![Stuff](https://cdn.modrinth.com/data/cached_images/3d527e1c3549243fb7545c033e4c0106849f1849.png)
+![Staff](https://cdn.modrinth.com/data/cached_images/3d527e1c3549243fb7545c033e4c0106849f1849.png)
 
 
-# Stuff+
+# Staff+
 
-Stuff+ is an enterprise-grade, high-performance moderation and utility plugin built for modern Minecraft networks. It ships as **two platform-specific JARs** — one for **Paper/Purpur/Folia** backend servers and one for **Velocity** proxies — sharing a unified core engine for consistent punishment management across your entire network.
+Staff+ is an enterprise-grade, high-performance moderation and utility plugin built for modern Minecraft networks. It ships as **two platform-specific JARs** — one for **Paper/Purpur/Folia** backend servers and one for **Velocity** proxies — sharing a unified core engine for consistent punishment management across your entire network.
 
 **Paper Edition** runs on Paper/Purpur/Folia 1.20–1.21+ servers with full Folia multi-threaded region safety, and includes advanced staff tools like vanish, inventory inspection, and spectator monitoring.
 
@@ -23,8 +23,8 @@ Both editions share the same database, configs, and migration system — deploy 
 | Warn / Warns / Clear | ✅ | ✅ |
 | History / StaffHistory | ✅ | ✅ |
 | Staff Rollback | ✅ | ✅ |
-| IP-Ban Exemption (`/stuffallow`) | ✅ | ✅ |
-| Punishment Migration (`/stuffimport`) | ✅ | ✅ |
+| IP-Ban Exemption (`/staffallow`) | ✅ | ✅ |
+| Punishment Migration (`/staffimport`) | ✅ | ✅ |
 | Discord Webhook Logging | ✅ | ✅ |
 | Warning Escalation Ladder | ✅ | ✅ |
 | Hierarchy Protection | ✅ | ✅ |
@@ -74,8 +74,8 @@ Both editions share the same database, configs, and migration system — deploy 
 * **Dynamic Command & History Parity**: Multi-threaded `/history <player>`, `/staffhistory <staff>`, and `/staffrollback <staff>` commands supported by dynamic database-backed name tab completions.
 * **Warning Escalation Ladder**: Scale punishments dynamically (e.g. tempmutes scaling to permanent bans) based on active warning levels. Command dispatches execute safely on each platform's native scheduler.
 * **Non-Blocking Discord Webhook Logs**: Real-time embeds logging all mute, ban, and warning dispatches using modern non-blocking Java 21 `HttpClient` interfaces with zero impact on region ticks.
-* **Administrative Overwrite Hierarchy Protection**: Custom staff weight ranks (`stuff.hierarchy.weight.<number>`) blocking junior staff from overriding, deactivating, or removing punishments placed by senior administrators or the Console (`Integer.MAX_VALUE`).
-* **IP-Ban Exemption Bypass**: Whitelist specific accounts (`/stuffallow`) to connect and bypass active IP-bans without lifting the IP ban itself for other accounts sharing the IP.
+* **Administrative Overwrite Hierarchy Protection**: Custom staff weight ranks (`staff.hierarchy.weight.<number>`) blocking junior staff from overriding, deactivating, or removing punishments placed by senior administrators or the Console (`Integer.MAX_VALUE`).
+* **IP-Ban Exemption Bypass**: Whitelist specific accounts (`/staffallow`) to connect and bypass active IP-bans without lifting the IP ban itself for other accounts sharing the IP.
 
 ### Punishment Importer & Migration (Both Platforms)
 * **7 Supported Platforms**: Seamlessly import mutes, bans, warnings, and IP bans from:
@@ -116,54 +116,54 @@ Both editions share the same database, configs, and migration system — deploy 
 
 | Command | Description | Usage | Permission Node |
 | :--- | :--- | :--- | :--- |
-| `/ban` | Bans a player from the server. | `/ban <player> [reason]` | `stuff.ban` |
-| `/tempban` | Temporarily bans a player. | `/tempban <player> <duration> [reason]` | `stuff.tempban` |
-| `/unban` | Unbans a player. | `/unban <player>` | `stuff.unban` |
-| `/ip-ban` | IP-bans a player. | `/ip-ban <player> [reason]` | `stuff.ipban` |
-| `/tempip-ban` | Temporarily IP-bans a player. | `/tempip-ban <player> <duration> [reason]` | `stuff.tempipban` |
-| `/unip-ban` | Unbans an IP address or player. | `/unip-ban <player/IP>` | `stuff.unipban` |
-| `/mute` | Mutes a player in chat. | `/mute <player> [reason]` | `stuff.mute` |
-| `/tempmute` | Temporarily mutes a player. | `/tempmute <player> <duration> [reason]` | `stuff.tempmute` |
-| `/unmute` | Unmutes a player. | `/unmute <player>` | `stuff.unmute` |
-| `/warn` | Warns a player. | `/warn <player> [reason]` | `stuff.warn` |
-| `/warns` | View or clear warning history. | `/warns <player> [list/clear]` | `stuff.warns` |
-| `/history` | View complete punishment logs (active/inactive) for players. | `/history <player>` | `stuff.history` |
-| `/staffhistory` | View all punishments issued by a staff member. | `/staffhistory <staff>` | `stuff.staffhistory` |
-| `/staffrollback` | Rollback all active punishments placed by a staff member. | `/staffrollback <staff> [confirm]` | `stuff.staffrollback` |
-| `/stuffallow` | Exempt a player/UUID from active IP bans. | `/stuffallow <player> [remove]` | `stuff.stuffallow` |
-| `/stuffimport` | Import punishments from other plugins. | `/stuffimport <source> [params...]` | `stuff.import` |
+| `/ban` | Bans a player from the server. | `/ban <player> [reason]` | `staff.ban` |
+| `/tempban` | Temporarily bans a player. | `/tempban <player> <duration> [reason]` | `staff.tempban` |
+| `/unban` | Unbans a player. | `/unban <player>` | `staff.unban` |
+| `/ip-ban` | IP-bans a player. | `/ip-ban <player> [reason]` | `staff.ipban` |
+| `/tempip-ban` | Temporarily IP-bans a player. | `/tempip-ban <player> <duration> [reason]` | `staff.tempipban` |
+| `/unip-ban` | Unbans an IP address or player. | `/unip-ban <player/IP>` | `staff.unipban` |
+| `/mute` | Mutes a player in chat. | `/mute <player> [reason]` | `staff.mute` |
+| `/tempmute` | Temporarily mutes a player. | `/tempmute <player> <duration> [reason]` | `staff.tempmute` |
+| `/unmute` | Unmutes a player. | `/unmute <player>` | `staff.unmute` |
+| `/warn` | Warns a player. | `/warn <player> [reason]` | `staff.warn` |
+| `/warns` | View or clear warning history. | `/warns <player> [list/clear]` | `staff.warns` |
+| `/history` | View complete punishment logs (active/inactive) for players. | `/history <player>` | `staff.history` |
+| `/staffhistory` | View all punishments issued by a staff member. | `/staffhistory <staff>` | `staff.staffhistory` |
+| `/staffrollback` | Rollback all active punishments placed by a staff member. | `/staffrollback <staff> [confirm]` | `staff.staffrollback` |
+| `/staffallow` | Exempt a player/UUID from active IP bans. | `/staffallow <player> [remove]` | `staff.staffallow` |
+| `/staffimport` | Import punishments from other plugins. | `/staffimport <source> [params...]` | `staff.import` |
 
 ### Paper-Only Commands
 
 | Command | Description | Usage | Permission Node |
 | :--- | :--- | :--- | :--- |
-| `/vanish` | Toggle complete invisibility. | `/vanish` | `stuff.vanish` |
-| `/invsee` | Inspect a player's inventory live. | `/invsee <player>` | `stuff.invsee` |
-| `/monitor` | Spectate and smoothly follow a player. | `/monitor <player/leave>` | `stuff.monitor` |
-| `/fly` | Toggle player flight. | `/fly [player]` | `stuff.fly` |
-| `/gmc` | Switch to creative mode. | `/gmc [player]` | `stuff.gmc` |
-| `/gms` | Switch to survival mode. | `/gms [player]` | `stuff.gms` |
-| `/gmsp` | Switch to spectator mode. | `/gmsp [player]` | `stuff.gmsp` |
-| `/gma` | Switch to adventure mode. | `/gma [player]` | `stuff.gma` |
+| `/vanish` | Toggle complete invisibility. | `/vanish` | `staff.vanish` |
+| `/invsee` | Inspect a player's inventory live. | `/invsee <player>` | `staff.invsee` |
+| `/monitor` | Spectate and smoothly follow a player. | `/monitor <player/leave>` | `staff.monitor` |
+| `/fly` | Toggle player flight. | `/fly [player]` | `staff.fly` |
+| `/gmc` | Switch to creative mode. | `/gmc [player]` | `staff.gmc` |
+| `/gms` | Switch to survival mode. | `/gms [player]` | `staff.gms` |
+| `/gmsp` | Switch to spectator mode. | `/gmsp [player]` | `staff.gmsp` |
+| `/gma` | Switch to adventure mode. | `/gma [player]` | `staff.gma` |
 
-> **Admin Wildcard**: The permission node `stuff.admin` grants access to all capabilities of the plugin by default.
-> **Bypass Node**: Players with the permission `stuff.vanish.see` can see vanished players in-game, in tab lists, and in commands.
+> **Admin Wildcard**: The permission node `staff.admin` grants access to all capabilities of the plugin by default.
+> **Bypass Node**: Players with the permission `staff.vanish.see` can see vanished players in-game, in tab lists, and in commands.
 
 ---
 
 ## Installation
 
 ### Paper Edition (Paper / Purpur / Folia)
-1. Download `StuffPlus-Paper-1.0.0.jar` from [Releases](https://github.com/synkfr/StuffPlus/releases).
+1. Download `StaffPlus-Paper-1.0.0.jar` from [Releases](https://github.com/synkfr/StaffPlus/releases).
 2. Place the JAR in your server's `plugins/` folder.
 3. Restart your server.
-4. Edit `plugins/Stuff/config.yml` and `plugins/Stuff/messages.yml` to your liking.
+4. Edit `plugins/Staff/config.yml` and `plugins/Staff/messages.yml` to your liking.
 
 ### Velocity Edition (Proxy)
-1. Download `StuffPlus-Velocity-1.0.0.jar` from [Releases](https://github.com/synkfr/StuffPlus/releases).
+1. Download `StaffPlus-Velocity-1.0.0.jar` from [Releases](https://github.com/synkfr/StaffPlus/releases).
 2. Place the JAR in your Velocity proxy's `plugins/` folder.
 3. Restart your proxy.
-4. Edit `plugins/stuffplus/config.yml` and `plugins/stuffplus/messages.yml` to your liking.
+4. Edit `plugins/staffplus/config.yml` and `plugins/staffplus/messages.yml` to your liking.
 
 ### Shared Database (Network Mode)
 To share punishments across your entire network, configure **both** editions to use the same MySQL database:
@@ -173,7 +173,7 @@ To share punishments across your entire network, configure **both** editions to 
 storage-type: "mysql"
 mysql-host: "your-db-host"
 mysql-port: 3306
-mysql-database: "stuffplus"
+mysql-database: "staffplus"
 mysql-username: "your-user"
 mysql-password: "your-password"
 ```
@@ -217,7 +217,7 @@ warning-ladder-actions:
 # Discord Webhook logging settings
 discord-webhook-enabled: false
 discord-webhook-url: ""
-discord-webhook-username: "Stuff+ Moderation"
+discord-webhook-username: "Staff+ Moderation"
 discord-webhook-avatar-url: "https://i.imgur.com/8Qp49X0.png"
 
 # Hex color codes for webhook embeds (without the #)
@@ -230,7 +230,7 @@ discord-webhook-color-warn: "FFFF55"
 Features full Adventure MiniMessage compatibility, enabling gorgeous native text styling, hex colors, and gradients (e.g. `<gradient:#FF5F6D:#FFC371>Text</gradient>`).
 ```yaml
 # Prefix for all plugin messages
-prefix: "<color:#A0A0A0>[<color:#00E262>Stuff+<color:#A0A0A0>] "
+prefix: "<color:#A0A0A0>[<color:#00E262>Staff+<color:#A0A0A0>] "
 
 no-permission: "<color:#E20000>You do not have permission to execute this command."
 player-only: "<color:#E20000>This command can only be executed by a player."
@@ -262,7 +262,7 @@ vanish-action-bar: "<color:#00E262>★ YOU ARE VANISHED ★"
 
 ## Build & Compilation
 
-Stuff+ is a **multi-module Gradle project** producing two independent shaded JARs.
+Staff+ is a **multi-module Gradle project** producing two independent shaded JARs.
 
 ### Requirements
 * **Java 21** or higher
@@ -276,36 +276,36 @@ Compile and build both platform JARs:
 
 The compiled plugins will be located at:
 ```
-stuff-paper/build/libs/StuffPlus-Paper-1.0.0.jar    # Paper/Purpur/Folia servers
-stuff-velocity/build/libs/StuffPlus-Velocity-1.0.0.jar  # Velocity proxies
+staff-paper/build/libs/StaffPlus-Paper-1.0.0.jar    # Paper/Purpur/Folia servers
+staff-velocity/build/libs/StaffPlus-Velocity-1.0.0.jar  # Velocity proxies
 ```
 
 ### Project Structure
 ```
-StuffPlus/
-├── stuff-core/          # Shared platform-agnostic library
+StaffPlus/
+├── staff-core/          # Shared platform-agnostic library
 │   └── src/main/java/   # Database, Punishment model, Configs, Migration, Utils
-├── stuff-paper/         # Paper/Folia backend plugin
+├── staff-paper/         # Paper/Folia backend plugin
 │   └── src/main/java/   # Paper commands, listeners, vanish, monitor, invsee
-├── stuff-velocity/       # Velocity proxy plugin
+├── staff-velocity/       # Velocity proxy plugin
 │   └── src/main/java/   # Velocity commands, login/chat listeners
 ├── build.gradle          # Root configuration
 └── settings.gradle       # Multi-module declaration
 ```
 
-*Note: The Gradle shadow configuration automatically relocates `eu.okaeri`, `com.zaxxer.hikari`, `org.h2`, and `org.xerial` libraries to private namespaces (`me.ayosynk.stuff.libs.*`) to prevent conflicts with any other plugins on the classpath.*
+*Note: The Gradle shadow configuration automatically relocates `eu.okaeri`, `com.zaxxer.hikari`, `org.h2`, and `org.xerial` libraries to private namespaces (`me.ayosynk.staff.libs.*`) to prevent conflicts with any other plugins on the classpath.*
 
 ---
 
 ## Continuous Integration
 
-`Stuff+` implements a fully automated CI/CD pipeline via GitHub Actions to compile, validate, and distribute artifacts for **both platforms**.
+`Staff+` implements a fully automated CI/CD pipeline via GitHub Actions to compile, validate, and distribute artifacts for **both platforms**.
 
 ### Dev Builds
 * **Frequency**: Built automatically on every `push` to the `master` or `main` branches.
-* **Release Target**: Published under the rolling **[dev-latest](https://github.com/synkfr/StuffPlus/releases/tag/dev-latest)** pre-release tag on GitHub.
+* **Release Target**: Published under the rolling **[dev-latest](https://github.com/synkfr/StaffPlus/releases/tag/dev-latest)** pre-release tag on GitHub.
 * **Rolling Policy**: The pipeline automatically overwrites the previous `dev-latest` tag on every build, maintaining a clean releases page.
-* **Artifacts**: Both `StuffPlus-Paper` and `StuffPlus-Velocity` JARs are published in every release.
+* **Artifacts**: Both `StaffPlus-Paper` and `StaffPlus-Velocity` JARs are published in every release.
 
 ### Stable Releases
 * **Frequency**: Generated whenever a semantic Git version tag matching `v*` (e.g., `v1.0.0`) is pushed to the repository.
@@ -315,7 +315,7 @@ StuffPlus/
 
 ## bStats Metrics
 
-Both editions of Stuff+ integrate with [bStats](https://bstats.org/) to collect anonymous usage statistics. This helps us understand how the plugin is being used and guides future development.
+Both editions of Staff+ integrate with [bStats](https://bstats.org/) to collect anonymous usage statistics. This helps us understand how the plugin is being used and guides future development.
 
 - **Paper Edition**: Uses `bstats-bukkit` for server-side metrics.
 - **Velocity Edition**: Uses `bstats-velocity` (Plugin ID: `31693`) for proxy-side metrics.
@@ -326,12 +326,12 @@ If you wish to opt-out of anonymous metrics collection, you can disable it by na
 
 ## Developer Notes
 
-For developers looking at the source code of Stuff+, here is a summary of the architecture:
+For developers looking at the source code of Staff+, here is a summary of the architecture:
 
 ### Multi-Module Architecture
-1. **stuff-core**: Platform-agnostic shared library containing the database layer, punishment model, config system, migration engine, and utility classes. Uses `ForkJoinPool.commonPool()` for async operations — no platform-specific scheduler dependencies.
-2. **stuff-paper**: Paper/Folia plugin implementing `StuffPlatform` interface. Contains all Paper-specific commands, listeners, vanish, monitor, invsee, and gamemode shortcuts. Uses Folia-safe regional schedulers.
-3. **stuff-velocity**: Velocity proxy plugin implementing `StuffPlatform` interface. Contains proxy-level commands and login/chat event listeners for network-wide enforcement.
+1. **staff-core**: Platform-agnostic shared library containing the database layer, punishment model, config system, migration engine, and utility classes. Uses `ForkJoinPool.commonPool()` for async operations — no platform-specific scheduler dependencies.
+2. **staff-paper**: Paper/Folia plugin implementing `StaffPlatform` interface. Contains all Paper-specific commands, listeners, vanish, monitor, invsee, and gamemode shortcuts. Uses Folia-safe regional schedulers.
+3. **staff-velocity**: Velocity proxy plugin implementing `StaffPlatform` interface. Contains proxy-level commands and login/chat event listeners for network-wide enforcement.
 
 ### Folia Threading Rules (Paper)
 1. **Async Teleportation**: Never call `Player#teleport()` on Folia. Always use `Player#teleportAsync()` and queue dependent actions using `.thenRun()` or `.thenAccept()`.

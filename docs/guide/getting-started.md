@@ -1,9 +1,9 @@
-# Getting Started with Stuff+
+# Getting Started with Staff+
 
-`Stuff+` is an enterprise-grade, high-performance moderation and utility plugin built for modern Minecraft networks. It ships as **two platform-specific JARs**:
+`Staff+` is an enterprise-grade, high-performance moderation and utility plugin built for modern Minecraft networks. It ships as **two platform-specific JARs**:
 
-- **StuffPlus-Paper** — For Paper/Purpur/Folia 1.20–1.21+ backend servers with full Folia multi-threaded safety.
-- **StuffPlus-Velocity** — For Velocity 3.3.0+ proxies enforcing bans and mutes at the network gateway.
+- **StaffPlus-Paper** — For Paper/Purpur/Folia 1.20–1.21+ backend servers with full Folia multi-threaded safety.
+- **StaffPlus-Velocity** — For Velocity 3.3.0+ proxies enforcing bans and mutes at the network gateway.
 
 Both editions share the same database, config format, and migration system.
 
@@ -28,17 +28,17 @@ Both editions share the same database, config format, and migration system.
 
 ### Paper Edition (Paper / Folia)
 
-1. Download `StuffPlus-Paper-1.0.0.jar` from the [GitHub Releases](https://github.com/synkfr/StuffPlus/releases).
+1. Download `StaffPlus-Paper-1.0.0.jar` from the [GitHub Releases](https://github.com/synkfr/StaffPlus/releases).
 2. Place the JAR in your server's `plugins/` directory.
 3. Start the server to generate the default configuration files.
-4. Customize `plugins/Stuff/config.yml` and `plugins/Stuff/messages.yml`, then restart.
+4. Customize `plugins/Staff/config.yml` and `plugins/Staff/messages.yml`, then restart.
 
 ### Velocity Edition (Proxy)
 
-1. Download `StuffPlus-Velocity-1.0.0.jar` from the [GitHub Releases](https://github.com/synkfr/StuffPlus/releases).
+1. Download `StaffPlus-Velocity-1.0.0.jar` from the [GitHub Releases](https://github.com/synkfr/StaffPlus/releases).
 2. Place the JAR in your Velocity proxy's `plugins/` directory.
 3. Start the proxy to generate the default configuration files.
-4. Customize `plugins/stuffplus/config.yml` and `plugins/stuffplus/messages.yml`, then restart.
+4. Customize `plugins/staffplus/config.yml` and `plugins/staffplus/messages.yml`, then restart.
 
 ### Network Mode (Shared Database)
 
@@ -49,7 +49,7 @@ To share punishments across your entire Paper + Velocity network, configure **bo
 storage-type: "mysql"
 mysql-host: "your-db-host"
 mysql-port: 3306
-mysql-database: "stuffplus"
+mysql-database: "staffplus"
 mysql-username: "your-user"
 mysql-password: "your-password"
 mysql-pool-size: 10
@@ -68,8 +68,8 @@ If you want to modify the source code or build the latest development snapshot, 
 
 ```bash
 # Clone the repository
-git clone https://github.com/synkfr/StuffPlus.git
-cd StuffPlus
+git clone https://github.com/synkfr/StaffPlus.git
+cd StaffPlus
 
 # Compile and build both platform JARs
 ./gradlew clean build
@@ -77,18 +77,18 @@ cd StuffPlus
 
 The compiled shaded plugins will be located at:
 ```
-stuff-paper/build/libs/StuffPlus-Paper-1.0.0.jar     # Paper/Purpur/Folia servers
-stuff-velocity/build/libs/StuffPlus-Velocity-1.0.0.jar  # Velocity proxies
+staff-paper/build/libs/StaffPlus-Paper-1.0.0.jar     # Paper/Purpur/Folia servers
+staff-velocity/build/libs/StaffPlus-Velocity-1.0.0.jar  # Velocity proxies
 ```
 
 ### Project Structure
 ```
-StuffPlus/
-├── stuff-core/          # Shared platform-agnostic core library
+StaffPlus/
+├── staff-core/          # Shared platform-agnostic core library
 │   └── Database, Punishment model, Configs, Migration, Utils
-├── stuff-paper/         # Paper/Purpur/Folia backend plugin
+├── staff-paper/         # Paper/Purpur/Folia backend plugin
 │   └── Commands, Listeners, Vanish, Monitor, Invsee
-├── stuff-velocity/       # Velocity proxy plugin
+├── staff-velocity/       # Velocity proxy plugin
 │   └── Proxy commands, Login/Chat enforcement listeners
 ├── build.gradle          # Root Gradle configuration
 └── settings.gradle       # Multi-module declaration
@@ -98,7 +98,7 @@ StuffPlus/
 
 ## Migrating from Other Plugins
 
-`Stuff+` includes a powerful multi-source migration and import tool. You can migrate mutes, bans, warnings, and IP bans from **7 popular moderation systems** on either platform:
+`Staff+` includes a powerful multi-source migration and import tool. You can migrate mutes, bans, warnings, and IP bans from **7 popular moderation systems** on either platform:
 
 | Source Plugin | Data Imported | Storage Supported |
 | :--- | :--- | :--- |
@@ -110,10 +110,10 @@ StuffPlus/
 | **BanManager** | Bans, Mutes, Warnings | SQLite, MySQL |
 | **BungeeAdminTools (BAT)** | Bans, Mutes | SQLite, MySQL |
 
-Run the `/stuffimport` command in-game to view auto-detected local setups, or see the [Commands Guide](/guide/commands) for usage details.
+Run the `/staffimport` command in-game to view auto-detected local setups, or see the [Commands Guide](/guide/commands) for usage details.
 
 ::: info Auto-Detection
-The importer automatically scans for local plugin config files and databases. For most setups, you can run `/stuffimport <source>` with zero manual configuration.
+The importer automatically scans for local plugin config files and databases. For most setups, you can run `/staffimport <source>` with zero manual configuration.
 :::
 
 ::: info Relocated Dependencies

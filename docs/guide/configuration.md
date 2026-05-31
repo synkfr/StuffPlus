@@ -1,6 +1,6 @@
 # Configuration Reference
 
-`Stuff+` utilizes **Okaeri Config** to generate, validate, and dynamically update configurations. All configurations feature full hex color and gradient support via **Adventure MiniMessage** (e.g., `<gradient:#FF5F6D:#FFC371>Gradients</gradient>` or `<color:#00E262>Hex Colors</color>`).
+`Staff+` utilizes **Okaeri Config** to generate, validate, and dynamically update configurations. All configurations feature full hex color and gradient support via **Adventure MiniMessage** (e.g., `<gradient:#FF5F6D:#FFC371>Gradients</gradient>` or `<color:#00E262>Hex Colors</color>`).
 
 Both the **Paper** and **Velocity** editions use the **same configuration format**. This makes it easy to maintain consistent settings across your network.
 
@@ -42,7 +42,7 @@ warning-ladder-actions:
 # Discord Webhook logging settings
 discord-webhook-enabled: false
 discord-webhook-url: ""
-discord-webhook-username: "Stuff+ Moderation"
+discord-webhook-username: "Staff+ Moderation"
 discord-webhook-avatar-url: "https://i.imgur.com/8Qp49X0.png"
 
 # Hex color codes for webhook embeds (without the #)
@@ -87,7 +87,7 @@ This file allows you to customize all system messages with rich color styling. T
 
 ```yaml
 # Prefix for all plugin messages
-prefix: "<color:#A0A0A0>[<color:#00E262>Stuff+<color:#A0A0A0>] "
+prefix: "<color:#A0A0A0>[<color:#00E262>Staff+<color:#A0A0A0>] "
 
 no-permission: "<color:#E20000>You do not have permission to execute this command."
 player-only: "<color:#E20000>This command can only be executed by a player."
@@ -133,5 +133,5 @@ vanish-action-bar: "<color:#00E262>★ YOU ARE VANISHED ★"
 
 | Platform | Config Directory |
 | :--- | :--- |
-| **Paper (Paper/Purpur/Folia)** | `plugins/Stuff/config.yml` and `plugins/Stuff/messages.yml` |
-| **Velocity** | `plugins/stuffplus/config.yml` and `plugins/stuffplus/messages.yml` |
+| **Paper (Paper/Purpur/Folia)** | `plugins/Staff/config.yml` and `plugins/Staff/messages.yml` |
+| **Velocity** | `plugins/staffplus/config.yml` and `plugins/staffplus/messages.yml` |

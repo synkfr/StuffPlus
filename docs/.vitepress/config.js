@@ -1,9 +1,9 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: "Stuff+",
+  title: "Staff+",
   description: "Advanced Modern Moderation & Utility Plugin for Paper and Folia",
-  base: "/StuffPlus/", // Base path matching the repository name for GitHub Pages
+  base: "/StaffPlus/", // Base path matching the repository name for GitHub Pages
   themeConfig: {
     logo: '/logo.png',
     nav: [
@@ -32,7 +32,7 @@ export default defineConfig({
       }
     ],
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/synkfr/StuffPlus' }
+      { icon: 'github', link: 'https://github.com/synkfr/StaffPlus' }
     ],
     footer: {
       message: 'Released under the MIT License.',
