@@ -1,2 +1,2 @@
-rootProject.name = 'StuffPlus'
-include 'stuff-core', 'stuff-paper', 'stuff-velocity'
+rootProject.name = 'StaffPlus'
+include 'staff-core', 'staff-paper', 'staff-velocity'

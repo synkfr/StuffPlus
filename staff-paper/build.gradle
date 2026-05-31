@@ -1,11 +1,11 @@
-// stuff-paper: Paper/Purpur/Folia backend plugin
+// staff-paper: Paper/Purpur/Folia backend plugin
 plugins {
     id 'com.gradleup.shadow'
 }
 
 dependencies {
     // Inherit the shared core module
-    implementation project(':stuff-core')
+    implementation project(':staff-core')
 
     // Paper API (provided at runtime by the server)
     compileOnly 'io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT'
@@ -19,15 +19,15 @@ dependencies {
 }
 
 shadowJar {
-    archiveBaseName.set('StuffPlus-Paper')
+    archiveBaseName.set('StaffPlus-Paper')
     archiveClassifier.set('')
 
     // Relocate shaded dependencies to prevent conflicts
-    relocate 'eu.okaeri', 'me.ayosynk.stuff.libs.okaeri'
-    relocate 'com.zaxxer.hikari', 'me.ayosynk.stuff.libs.hikari'
-    relocate 'org.bstats', 'me.ayosynk.stuff.libs.bstats'
-    relocate 'org.h2', 'me.ayosynk.stuff.libs.h2'
-    relocate 'org.xerial', 'me.ayosynk.stuff.libs.xerial'
+    relocate 'eu.okaeri', 'me.ayosynk.staff.libs.okaeri'
+    relocate 'com.zaxxer.hikari', 'me.ayosynk.staff.libs.hikari'
+    relocate 'org.bstats', 'me.ayosynk.staff.libs.bstats'
+    relocate 'org.h2', 'me.ayosynk.staff.libs.h2'
+    relocate 'org.xerial', 'me.ayosynk.staff.libs.xerial'
 
     // Exclude SLF4J — Paper provides it
     exclude 'org/slf4j/**'

@@ -1,11 +1,11 @@
-// stuff-velocity: Velocity proxy plugin
+// staff-velocity: Velocity proxy plugin
 plugins {
     id 'com.gradleup.shadow'
 }
 
 dependencies {
     // Inherit the shared core module
-    implementation project(':stuff-core')
+    implementation project(':staff-core')
 
     // Velocity API (provided at runtime by the proxy)
     compileOnly 'com.velocitypowered:velocity-api:3.3.0-SNAPSHOT'
@@ -19,15 +19,15 @@ dependencies {
 }
 
 shadowJar {
-    archiveBaseName.set('StuffPlus-Velocity')
+    archiveBaseName.set('StaffPlus-Velocity')
     archiveClassifier.set('')
 
     // Relocate shaded dependencies to prevent conflicts
-    relocate 'eu.okaeri', 'me.ayosynk.stuff.libs.okaeri'
-    relocate 'com.zaxxer.hikari', 'me.ayosynk.stuff.libs.hikari'
-    relocate 'org.h2', 'me.ayosynk.stuff.libs.h2'
-    relocate 'org.xerial', 'me.ayosynk.stuff.libs.xerial'
-    relocate 'org.bstats', 'me.ayosynk.stuff.libs.bstats'
+    relocate 'eu.okaeri', 'me.ayosynk.staff.libs.okaeri'
+    relocate 'com.zaxxer.hikari', 'me.ayosynk.staff.libs.hikari'
+    relocate 'org.h2', 'me.ayosynk.staff.libs.h2'
+    relocate 'org.xerial', 'me.ayosynk.staff.libs.xerial'
+    relocate 'org.bstats', 'me.ayosynk.staff.libs.bstats'
 
     // Exclude SLF4J — Velocity provides it
     exclude 'org/slf4j/**'

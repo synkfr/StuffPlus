@@ -6,7 +6,7 @@ plugins {
 subprojects {
     apply plugin: 'java'
 
-    group = 'me.ayosynk.stuff'
+    group = 'me.ayosynk.staff'
     version = '1.0.0'
 
     repositories {

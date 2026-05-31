@@ -1,4 +1,4 @@
-// stuff-core: Platform-agnostic shared library
+// staff-core: Platform-agnostic shared library
 // Contains: DatabaseManager, Punishment model, Configs, Migration, Utils
 // NO Bukkit or Velocity imports allowed here
 
