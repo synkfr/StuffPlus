@@ -132,6 +132,14 @@
   - [x] Update GitHub Actions workflow and properties
   - [x] Verify clean build and correct JAR output names
 
+- [ ] **Phase 20: Staff Info command and GUI**
+  - [ ] Implement `StaffInfoHolder` class to manage inventory GUI data
+  - [ ] Create `StaffCommand` with `/staff info <player>` subcommand
+  - [ ] Register `/staff` command dynamically in `StaffBukkitPlugin`
+  - [ ] Add `InventoryClickEvent` handling for `StaffInfoHolder` in `PlayerListener`
+  - [ ] Add `staff.info` permission description in `paper-plugin.yml`
+  - [ ] Verify build compiles and tests cleanly
+
 ## Review & Verification Results
 
 ### 1. Compiles and Shading Integrity
