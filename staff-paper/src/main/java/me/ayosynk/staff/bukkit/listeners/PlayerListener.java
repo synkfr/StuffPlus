@@ -3,6 +3,7 @@ package me.ayosynk.staff.bukkit.listeners;
 import me.ayosynk.staff.bukkit.StaffBukkitPlugin;
 import me.ayosynk.staff.bukkit.commands.InvseeCommand;
 import me.ayosynk.staff.bukkit.commands.InvseeHolder;
+import me.ayosynk.staff.bukkit.commands.StaffInfoHolder;
 import me.ayosynk.staff.database.Punishment;
 import me.ayosynk.staff.utils.DurationUtils;
 import me.ayosynk.staff.bukkit.utils.MiniMessageUtils;
@@ -254,6 +255,11 @@ public class PlayerListener implements Listener {
      */
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
+        if (event.getInventory().getHolder() instanceof StaffInfoHolder) {
+            handleStaffInfoClick(event);
+            return;
+        }
+
         if (!(event.getInventory().getHolder() instanceof InvseeHolder)) {
             return;
         }
@@ -451,6 +457,176 @@ public class PlayerListener implements Listener {
                     });
                 }
             }
+        }
+    }
+
+    private int getHierarchyWeight(Player player) {
+        int maxWeight = 0;
+        for (org.bukkit.permissions.PermissionAttachmentInfo info : player.getEffectivePermissions()) {
+            String perm = info.getPermission().toLowerCase();
+            if (perm.startsWith("staff.hierarchy.weight.")) {
+                try {
+                    int weight = Integer.parseInt(perm.substring("staff.hierarchy.weight.".length()));
+                    if (weight > maxWeight) {
+                        maxWeight = weight;
+                    }
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        return maxWeight;
+    }
+
+    private void handleStaffInfoClick(InventoryClickEvent event) {
+        event.setCancelled(true);
+        if (!(event.getWhoClicked() instanceof Player)) return;
+        Player staff = (Player) event.getWhoClicked();
+        int slot = event.getRawSlot();
+
+        StaffInfoHolder holder = (StaffInfoHolder) event.getInventory().getHolder();
+        UUID targetUuid = holder.getTargetUuid();
+        String targetName = holder.getTargetName();
+        boolean isOnline = holder.isOnline();
+
+        if (slot == 49) {
+            SchedulerUtils.runEntity(plugin, staff, staff::closeInventory);
+            return;
+        }
+
+        if (slot == 29) { // Teleport
+            if (!isOnline) return;
+            Player target = Bukkit.getPlayer(targetUuid);
+            if (target != null && target.isOnline()) {
+                SchedulerUtils.runEntity(plugin, staff, () -> {
+                    staff.closeInventory();
+                    staff.teleportAsync(target.getLocation());
+                    staff.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + "<color:#00E262>Teleported to " + target.getName()));
+                });
+            }
+            return;
+        }
+
+        if (slot == 30) { // Invsee
+            if (!isOnline) return;
+            Player target = Bukkit.getPlayer(targetUuid);
+            if (target != null && target.isOnline()) {
+                SchedulerUtils.runEntity(plugin, staff, () -> {
+                    staff.closeInventory();
+                    new me.ayosynk.staff.bukkit.commands.InvseeCommand(plugin).openInvsee(staff, target);
+                });
+            }
+            return;
+        }
+
+        if (slot == 31) { // Clear Warnings
+            SchedulerUtils.runAsync(plugin, () -> {
+                plugin.getDatabaseManager().getWarnings(targetUuid).thenAccept(warns -> {
+                    if (warns.isEmpty()) return;
+
+                    List<CompletableFuture<Integer>> futures = new ArrayList<>();
+                    for (Punishment w : warns) {
+                        futures.add(plugin.getDatabaseManager().getPlayerWeight(w.getPunisherUuid()));
+                    }
+
+                    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).thenRun(() -> {
+                        int executorWeight = getHierarchyWeight(staff);
+                        boolean blocked = false;
+                        UUID higherStaffUuid = null;
+                        for (int i = 0; i < warns.size(); i++) {
+                            int punisherWeight = futures.get(i).join();
+                            if (executorWeight < punisherWeight) {
+                                blocked = true;
+                                higherStaffUuid = warns.get(i).getPunisherUuid();
+                                break;
+                            }
+                        }
+
+                        if (blocked) {
+                            final UUID finalStaffUuid = higherStaffUuid;
+                            if (finalStaffUuid != null) {
+                                plugin.getDatabaseManager().getPlayerNameByUuid(finalStaffUuid).thenAccept(name -> {
+                                    String finalName = name != null ? name : "Console";
+                                    staff.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + 
+                                            plugin.getMessageConfig().getCannotOverwritePunishment().replace("{staff}", finalName)));
+                                });
+                            } else {
+                                staff.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + 
+                                        plugin.getMessageConfig().getCannotOverwritePunishment().replace("{staff}", "Console")));
+                            }
+                            return;
+                        }
+
+                        plugin.getDatabaseManager().clearWarnings(targetUuid).thenAccept(success -> {
+                            staff.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getWarnCleared().replace("{player}", targetName)));
+                            SchedulerUtils.runEntity(plugin, staff, staff::closeInventory);
+                        });
+                    });
+                });
+            });
+            return;
+        }
+
+        if (slot == 32) { // Toggle Exemption
+            SchedulerUtils.runAsync(plugin, () -> {
+                plugin.getDatabaseManager().isAllowed(targetUuid).thenAccept(allowed -> {
+                    if (allowed) {
+                        plugin.getDatabaseManager().removeAllow(targetUuid).thenAccept(success -> {
+                            staff.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getPlayerUnallowed().replace("{player}", targetName)));
+                            SchedulerUtils.runEntity(plugin, staff, staff::closeInventory);
+                        });
+                    } else {
+                        plugin.getDatabaseManager().addAllow(targetUuid).thenRun(() -> {
+                            staff.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + plugin.getMessageConfig().getPlayerAllowed().replace("{player}", targetName)));
+                            SchedulerUtils.runEntity(plugin, staff, staff::closeInventory);
+                        });
+                    }
+                });
+            });
+            return;
+        }
+
+        if (slot == 33) { // View History
+            SchedulerUtils.runEntity(plugin, staff, () -> {
+                staff.closeInventory();
+                staff.performCommand("history " + targetName);
+            });
+            return;
+        }
+
+        if (slot == 38) { // Kick
+            if (!isOnline) return;
+            Player target = Bukkit.getPlayer(targetUuid);
+            if (target != null && target.isOnline()) {
+                SchedulerUtils.runEntity(plugin, target, () -> {
+                    target.kick(MiniMessageUtils.parse("<color:#E20000>Kicked by staff member: " + staff.getName()));
+                    staff.sendMessage(MiniMessageUtils.parse(plugin.getMessageConfig().getPrefix() + "<color:#00E262>Kicked player " + target.getName()));
+                });
+                SchedulerUtils.runEntity(plugin, staff, staff::closeInventory);
+            }
+            return;
+        }
+
+        if (slot == 39) { // Warn
+            SchedulerUtils.runEntity(plugin, staff, () -> {
+                staff.closeInventory();
+                staff.performCommand("warn " + targetName + " GUI Warning");
+            });
+            return;
+        }
+
+        if (slot == 40) { // Mute
+            SchedulerUtils.runEntity(plugin, staff, () -> {
+                staff.closeInventory();
+                staff.performCommand("tempmute " + targetName + " 1h GUI Mute");
+            });
+            return;
+        }
+
+        if (slot == 41) { // Ban
+            SchedulerUtils.runEntity(plugin, staff, () -> {
+                staff.closeInventory();
+                staff.performCommand("ban " + targetName + " GUI Ban");
+            });
+            return;
         }
     }
 }

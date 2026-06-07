@@ -32,3 +32,5 @@ permissions:
       staff.gmsp: true
       staff.gma: true
       staff.import: true
+      staff.staff: true
+

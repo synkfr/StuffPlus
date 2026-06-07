@@ -223,6 +223,9 @@ public final class StaffBukkitPlugin extends JavaPlugin implements StaffPlatform
 
         me.ayosynk.staff.bukkit.commands.ImportCommand importCommand = new me.ayosynk.staff.bukkit.commands.ImportCommand(this, this.migrationManager);
         registerDynamic(commandMap, "staffimport", "Import punishments from other plugins.", "/staffimport <source> [params...]", Arrays.asList("migrate", "staffmigrate"), importCommand, importCommand);
+
+        me.ayosynk.staff.bukkit.commands.StaffCommand staffCommand = new me.ayosynk.staff.bukkit.commands.StaffCommand(this);
+        registerDynamic(commandMap, "staff", "Access staff utility subcommands.", "/staff <subcommand>", Collections.emptyList(), staffCommand, staffCommand);
     }
 
     private void registerDynamic(org.bukkit.command.CommandMap commandMap, String name, String description, String usage, List<String> aliases, org.bukkit.command.CommandExecutor executor, org.bukkit.command.TabCompleter tabCompleter) {
