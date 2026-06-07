@@ -48,3 +48,10 @@
 *   **Self-Corrective Action Rule**:
     *   *Rule*: Verify the exact branding name and naming conventions before starting implementation. Keep a constant lookup of display names (e.g. "Staff+") versus internal packages (e.g. `me.ayosynk.staff`) to ensure consistency from day one.
 
+## 8. Compiler Symbol Errors & Local Verification
+*   **The Issue**: Omitting crucial imports (like `org.bukkit.Location` or other core class symbols) in newly created commands or files leads to compile failures that block CI pipelines.
+*   **The Resolution**: Always run a local compilation check (`./gradlew compileJava` or `./gradlew build`) after making edits to ensure all types are resolved. Proactively add imports rather than assuming standard types are auto-imported.
+*   **Self-Corrective Action Rule**:
+    *   *Rule*: Always check and verify imports before concluding code changes, and verify by running a local gradle build to catch unresolved symbol compiler errors.
+
+

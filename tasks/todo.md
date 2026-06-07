@@ -132,13 +132,13 @@
   - [x] Update GitHub Actions workflow and properties
   - [x] Verify clean build and correct JAR output names
 
-- [ ] **Phase 20: Staff Info command and GUI**
-  - [ ] Implement `StaffInfoHolder` class to manage inventory GUI data
-  - [ ] Create `StaffCommand` with `/staff info <player>` subcommand
-  - [ ] Register `/staff` command dynamically in `StaffBukkitPlugin`
-  - [ ] Add `InventoryClickEvent` handling for `StaffInfoHolder` in `PlayerListener`
-  - [ ] Add `staff.info` permission description in `paper-plugin.yml`
-  - [ ] Verify build compiles and tests cleanly
+- [x] **Phase 20: Staff Info command and GUI**
+  - [x] Implement `StaffInfoHolder` class to manage inventory GUI data
+  - [x] Create `StaffCommand` with `/staff info <player>` subcommand
+  - [x] Register `/staff` command dynamically in `StaffBukkitPlugin`
+  - [x] Add `InventoryClickEvent` handling for `StaffInfoHolder` in `PlayerListener`
+  - [x] Add `staff.info` permission description in `paper-plugin.yml`
+  - [x] Verify build compiles and tests cleanly
 
 ## Review & Verification Results
 
@@ -175,6 +175,13 @@
 - Updated all plugin commands, permissions, and database tables to use "staff".
 - Renamed display names, logs, metrics, workflows, and documentation pages from Stuff+ to Staff+.
 - Verified clean build producing `StaffPlus-Paper-1.0.0.jar` and `StaffPlus-Velocity-1.0.0.jar`.
+
+### 7. Phase 20: Staff Info GUI & command
+- Implemented `/staff info <player>` command opening an interactive chest inventory GUI.
+- Shows dynamic connections, warnings, alts, and exemption statuses.
+- Provides clickable punish-shortcuts (kick, warn, mute, ban, clear history, and toggle whitelist bypass) utilizing hierarchy weight permission checks.
+- Safely handles offline players by turning active buttons to red glass panes.
+- Compiles successfully without warnings/errors under Paper/Folia.
 
 
 
