@@ -54,4 +54,8 @@
 *   **Self-Corrective Action Rule**:
     *   *Rule*: Always check and verify imports before concluding code changes, and verify by running a local gradle build to catch unresolved symbol compiler errors.
 
-
+## 9. Gradle JUnit Platform Launcher dependency
+*   **The Issue**: In newer Gradle versions, running tests using JUnit 5 platform runner requires the JUnit Platform Launcher dependency present on the test execution classpath. Omitting this triggers a `Failed to load JUnit Platform. Please ensure that all JUnit Platform dependencies are available on the test's runtime classpath, including the JUnit Platform launcher.` error.
+*   **The Resolution**: Always declare `testRuntimeOnly 'org.junit.platform:junit-platform-launcher'` in `build.gradle` dependencies block when setting up tests under JUnit Platform.
+*   **Self-Corrective Action Rule**:
+    *   *Rule*: When adding JUnit test support to any module, remember to include both the JUnit engine and the `junit-platform-launcher` runtime dependency.
