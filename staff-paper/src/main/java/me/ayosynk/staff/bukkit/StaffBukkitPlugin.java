@@ -361,7 +361,9 @@ public final class StaffBukkitPlugin extends JavaPlugin implements StaffPlatform
         if (state == null) return;
 
         Runnable restoreAction = () -> {
-            staff.setSpectatorTarget(null);
+            if (staff.getGameMode() == GameMode.SPECTATOR) {
+                staff.setSpectatorTarget(null);
+            }
             staff.setGameMode(state.getOriginalGameMode());
             staff.getInventory().setContents(state.getInventoryContents());
             staff.getInventory().setArmorContents(state.getArmorContents());

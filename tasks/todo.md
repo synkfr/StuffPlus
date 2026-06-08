@@ -152,6 +152,10 @@
   - [x] Verify build compiles and shaded JAR builds cleanly
   - [x] Write localized YAML parser test to prove error resilience and graceful fallback
 
+- [x] **Phase 22: Fix spectator target restoration exception**
+  - [x] Check if player is in spectator mode before calling `setSpectatorTarget(null)` in `restoreSpectatorState`
+  - [x] Build and compile the project to verify correctness
+
 ## Review & Verification Results
 
 ### 1. Compiles and Shading Integrity
@@ -202,6 +206,10 @@
 - Wired `/staff reload` console and player command executing real-time reloads of config, messages, and GUI files.
 - Completed full unit test validation (`MenuManagerTest.java`) confirming graceful error handling and correct default settings fallback under invalid YAML/logical configurations.
 - Verified compilation builds cleanly and generated shaded JAR.
+
+### 9. Phase 22: Fix spectator target restoration exception
+- Added a game mode check `staff.getGameMode() == GameMode.SPECTATOR` prior to calling `staff.setSpectatorTarget(null)` in `restoreSpectatorState`.
+- Verified the build compiles successfully with `./gradlew clean build`.
 
 
 
